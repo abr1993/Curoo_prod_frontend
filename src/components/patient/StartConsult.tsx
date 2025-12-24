@@ -95,7 +95,7 @@ const location = useLocation();
           }        
             <Avatar className="w-20 h-20">
                   <AvatarImage
-                    src={`${VITE_API_BASE_URL}/${provider.avatar}`}
+                    src={provider.avatar}
                     alt={provider.display_name}
                   />
                   <AvatarFallback className="bg-gray-200">

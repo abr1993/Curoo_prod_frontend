@@ -27,6 +27,8 @@ import { ProviderLicense } from "@/types/provider";
 import { useDraftConsultContext } from "@/contexts/DraftConsultContext";
 import { Contact } from "lucide-react";
 import { ContactUs } from "./shared/Contact";
+import { TermsConditions } from "./shared/TermsCondition";
+import { PrivacyPolicy } from "./shared/PrivacyPolicy";
 
 export default function AppLayout() {
   return (
@@ -267,6 +269,14 @@ console.log("JWT in localStorage on startup:", localStorage.getItem("token"));
         <Route
           path="/contactus"
           element={ <ContactUs />}
+        />
+        <Route
+          path="/terms"
+          element={ <TermsConditions />}
+        />
+        <Route
+          path="/privacy"
+          element={ <PrivacyPolicy />}
         />
       </Routes>
           </main>

@@ -102,7 +102,7 @@ const { title, description, titleLink } = useHeader();
           <div>
             <h1 className="text-xl font-semibold text-gray-900">
                 {titleLink ? (
-                  <Link to={titleLink} className="block hover:underline">
+                  <Link to={titleLink} className="block ">
                     {title}
                   </Link>
                 ) : (

@@ -89,11 +89,11 @@ const {token, userId} = useAuth();
   if (error) return <p className="text-center py-8">Failed to fetch providers from database!</p>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+    <div className="bg-gradient-to-b from-blue-50 to-blue-50">
+      <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
         {providers.map((provider, index) => (
           <Card key={index}>
-            <div className="flex items-start gap-4 mb-6">
+            <div className="flex items-start gap-4 ">
               {/* <img
                 src={ (provider.avatar!==null) ? `${VITE_API_BASE_URL}/${provider.avatar}` : IMAGES.physician} 
                 alt={provider.display_name}
@@ -101,7 +101,7 @@ const {token, userId} = useAuth();
               /> */}
               <Avatar className="w-20 h-20">
                 <AvatarImage
-                  src={`${VITE_API_BASE_URL}/${provider.avatar}`}
+                  src={provider.avatar}
                   alt={provider.display_name}
                 />
                 <AvatarFallback className="bg-gray-200">

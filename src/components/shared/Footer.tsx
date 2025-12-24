@@ -11,7 +11,7 @@ export const Footer: React.FC = () => {
     })
   },[]) */
   return (
-    <footer className="mt-8 border-t border-gray-200 bg-gray-50 px-4 py-10">
+    <footer className="border-t border-gray-200 bg-gray-50 px-4 py-4">
       <div className="max-w-3xl mx-auto space-y-6">       
         
         <div className="space-y-3 text-sm text-gray-600">
@@ -29,13 +29,13 @@ export const Footer: React.FC = () => {
           </p>
         </div>
          <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
-            <span>Copy right © 2025</span>
+            <span>Copyright © {new Date().getFullYear()}</span>
             <span>|</span>
-          <Link to="#" className="hover:text-blue-600">
+          <Link to="/privacy" className="hover:text-blue-600">
             Privacy Policy
           </Link>
           <span>|</span>
-          <Link to="#" className="hover:text-blue-600">
+          <Link to="/terms" className="hover:text-blue-600">
             Terms of Service
           </Link> 
           <span>|</span>         

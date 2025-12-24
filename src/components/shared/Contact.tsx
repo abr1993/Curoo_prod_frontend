@@ -15,7 +15,7 @@ export const ContactUs: React.FC = () => {
 
         <div className="space-y-3">
           {/* Owner name */}
-          <div>
+          {/* <div>
             <p className="text-sm text-gray-500">Website owner</p>
             <p className="text-base font-medium text-gray-900">
               Dr. Enoch Kassa, MD
@@ -23,7 +23,7 @@ export const ContactUs: React.FC = () => {
             <p className="text-sm text-gray-600">
               Ophthalmologist
             </p>
-          </div>
+          </div> */}
 
           {/* Email */}
           <div>
