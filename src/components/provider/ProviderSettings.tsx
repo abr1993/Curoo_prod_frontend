@@ -285,7 +285,7 @@ const handleconsolelog = () =>{
                       <AvatarImage
                           src={ 
                             (typeof photo === "string" && photo)
-                              ? `${VITE_API_BASE_URL}/${photo}`
+                              ? photo
                               : photoPreview || ""
                             }
                           alt="Profile"
