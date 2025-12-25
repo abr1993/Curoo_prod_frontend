@@ -193,84 +193,105 @@ export const StatusView: React.FC<StatusViewProps> = ({ onViewReport }) => {
   if (error) return <TurnBack reason={turnbackError} onBack={onBack} />
 
   return (
-    <div className="min-h-screen bg-gray-50">
-           
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+    <div className="bg-gradient-to-b from-blue-50 to-blue-50">
+      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         <Card>
           <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">{status.icon}</span>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">{status.label}</h2>
-              <p className="text-sm text-gray-600">
-                Submitted {new Date(consult.submitted_date).toLocaleString()}
-              </p>
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{status.icon}</span>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  {status.label}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Submitted {new Date(consult.submitted_date).toLocaleString()}
+                </p>
+              </div>
             </div>
+
+            <span className="text-xs text-gray-500">
+              <strong>ID: {extractSixDigits(consult.id)}</strong>
+            </span>
           </div>
 
-          <span className="text-xs text-gray-500">
-            <strong>ID: {extractSixDigits(consult.id)}</strong>
-          </span>
-        </div>
-
-
           <div className="space-y-3">
-                {[
-                    { label: 'Payment authorized', done: consult.status !== 'ISDRAFT', date: consult.submitted_date },
-                    { label: 'Submitted', done: true, date: consult.submitted_date },
-                    ...(consult.status === 'DECLINED'
-                      ? [
-                          { label: 'Declined', done: true, date: consult.declined_date },
-                        ]
-                      : consult.status === 'AUTO_DECLINED' || consult.status === 'TIMEDOUT'
-                      ? [
-                          { label: 'Timed out', done: true, date: consult.timed_out_date },
-                        ]
-                      : [
-                          { label: 'Accepted by physician', done: ['ACCEPTED', 'ANSWERED'].includes(consult.status), date: consult.accepted_date },
-                          { label: 'Report completed', done: ['ANSWERED'].includes(consult.status), date: consult.answered_date },
-                        ]),
-                  ].map((step, i) => (
-                      <div key={i} className="flex justify-between items-center">
-                        {/* Left side: status + icon */}
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                              step.done ? 'bg-green-500' : 'bg-gray-300'
-                            }`}
-                          >
-                            {step.done && (
-                              <svg
-                                className="w-4 h-4 text-white"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            )}
-                          </div>
-                          <span
-                            className={`text-sm ${
-                              step.done ? 'text-gray-900 font-medium' : 'text-gray-500'
-                            }`}
-                          >
-                            {step.label}
-                          </span>
-                        </div>
+            {[
+              {
+                label: "Payment authorized",
+                done: consult.status !== "ISDRAFT",
+                date: consult.submitted_date,
+              },
+              { label: "Submitted", done: true, date: consult.submitted_date },
+              ...(consult.status === "DECLINED"
+                ? [
+                    {
+                      label: "Declined",
+                      done: true,
+                      date: consult.declined_date,
+                    },
+                  ]
+                : consult.status === "AUTO_DECLINED" ||
+                  consult.status === "TIMEDOUT"
+                ? [
+                    {
+                      label: "Timed out",
+                      done: true,
+                      date: consult.timed_out_date,
+                    },
+                  ]
+                : [
+                    {
+                      label: "Accepted by physician",
+                      done: ["ACCEPTED", "ANSWERED"].includes(consult.status),
+                      date: consult.accepted_date,
+                    },
+                    {
+                      label: "Report completed",
+                      done: ["ANSWERED"].includes(consult.status),
+                      date: consult.answered_date,
+                    },
+                  ]),
+            ].map((step, i) => (
+              <div key={i} className="flex justify-between items-center">
+                {/* Left side: status + icon */}
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                      step.done ? "bg-green-500" : "bg-gray-300"
+                    }`}
+                  >
+                    {step.done && (
+                      <svg
+                        className="w-4 h-4 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <span
+                    className={`text-sm ${
+                      step.done ? "text-gray-900 font-medium" : "text-gray-500"
+                    }`}
+                  >
+                    {step.label}
+                  </span>
+                </div>
 
-                        {/* Right side: date */}
-                        {step.date && (
-                          <span className="text-sm text-black-500">
-                            {new Date(step.date).toLocaleString()}
-                          </span>
-                        )}
-                      </div>
-                    ))}
+                {/* Right side: date */}
+                {step.date && (
+                  <span className="text-sm text-black-500">
+                    {new Date(step.date).toLocaleString()}
+                  </span>
+                )}
               </div>
+            ))}
+          </div>
         </Card>
 
         {/* {consult.status === 'ANSWERED' && onViewReport && (
@@ -278,27 +299,36 @@ export const StatusView: React.FC<StatusViewProps> = ({ onViewReport }) => {
             View your report
           </Button>
         )} */}
-        { (consult.status === 'ANSWERED') && (
-        <Card>
+        {consult.status === "ANSWERED" && (
+          <Card>
             <button
               type="button"
               onClick={() => setViewAnswer(!viewAnswer)}
               className="w-full flex items-center justify-between text-left"
             >
-              <h3 className="text-lg font-semibold text-gray-900">View Physician Answer</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                View Provider Answer
+              </h3>
               <svg
-                className={`w-5 h-5 transition-transform ${viewAnswer ? 'rotate-180' : ''}`}
+                className={`w-5 h-5 transition-transform ${
+                  viewAnswer ? "rotate-180" : ""
+                }`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </button>
 
             {viewAnswer && (
-              <div className="mt-6 space-y-6">        
-              {/* <div>
+              <div className="mt-6 space-y-6">
+                {/* <div>
                 <p className="text-sm font-medium text-gray-700 mb-1">
                   Differential Considerations
                 </p>
@@ -324,7 +354,7 @@ export const StatusView: React.FC<StatusViewProps> = ({ onViewReport }) => {
                 )}
               </div> */}
 
-              {/* <div>
+                {/* <div>
                 <p className="text-sm font-medium text-gray-700 mb-1">
                   What's reasonable at home
                 </p>
@@ -349,114 +379,152 @@ export const StatusView: React.FC<StatusViewProps> = ({ onViewReport }) => {
                 )}
                 </div>
               </div> */}
-                          
-          <Card className="bg-white shadow-sm rounded-xl p-6 border border-gray-100">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">Report</h2>
 
-              <div className="space-y-8 divide-y divide-gray-100">
-                <section>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Overview</h3>
-                  <p className="text-gray-700 leading-relaxed">{report?.overview}</p>
-                </section>
+                <Card className="bg-white shadow-sm rounded-xl p-6 border border-gray-100">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    Report
+                  </h2>
 
-                <section className="pt-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    Differential Considerations (General)
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    {report?.differentials_general}
-                  </p>
-                </section>
+                  <div className="mt-6 space-y-8 divide-y divide-gray-100">
+                    <section className="pt-6 first:pt-0">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        Overview
+                      </h3>
+                      <p className="mt-2 text-gray-700 leading-relaxed">
+                        {report?.overview}
+                      </p>
+                    </section>
 
-                <section className="pt-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    What’s Reasonable at Home
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed">{report?.self_care_general}</p>
-                </section>
+                    <section className="pt-6">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        Differential Considerations (General)
+                      </h3>
+                      <p className="mt-2 text-gray-700 leading-relaxed">
+                        {report?.differentials_general}
+                      </p>
+                    </section>
 
-                <section className="pt-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                    When to Seek In-Person Care
-                  </h3>
-                  <p className="text-gray-700 leading-relaxed">{report?.when_to_seek_care}</p>
-                </section>
-              </div>
-            </Card>
-                         
-              </div>
-            )}
-          </Card>)}
-          <Card>
-            <button
-              type="button"
-              onClick={() => setViewQuestion(!viewQuestion)}
-              className="w-full flex items-center justify-between text-left"
-            >
-              <h3 className="text-lg font-semibold text-gray-900">View Question</h3>
-              <svg
-                className={`w-5 h-5 transition-transform ${viewQuestion ? 'rotate-180' : ''}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
+                    <section className="pt-6">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        What’s Reasonable at Home
+                      </h3>
+                      <p className="mt-2 text-gray-700 leading-relaxed">
+                        {report?.self_care_general}
+                      </p>
+                    </section>
 
-            {viewQuestion && (
-              <div className="mt-6 space-y-6">               
-                             
-
-                <div>
-                  <Textarea
-                                label="Question"                                
-                                value={consult.question_body}
-                                disabled={true}                                
-                                
-                              />
-
-                  <Card>                            
-                            <div className="space-y-4 text-sm">
-                              <p><strong>Date of birth:</strong> {getFormatedDate(consult.date_of_birth)}</p>                              
-                              <p><strong>Age:</strong> {calculateAge(consult.date_of_birth)}</p>
-                              <p><strong>State:</strong> { consult.state_at_service }</p>
-                              <p><strong>Topic:</strong> { consult.topics.map(topic=> ( topic.name + " ")) || 'General concern'}</p>
-                            </div>
-                      </Card>
-                      <Card>
-                  
-                  <div className="grid grid-cols-2 gap-4 mb-4 ">
-                    {consult.consult_specialty_symptoms.map((item) => (
-                      <div key={item.specialty_symptom.id} className={`p-3 rounded-lg shadow-sm ${getSeverityColor( item.Value ?? 0 )}`}>
-                        <p className="text-xs text-gray-600">{item.specialty_symptom.symptom.name}</p>
-                        <p className="text-lg font-semibold text-gray-900">{item.Value ?? 0}/10</p>
-                      </div>
-                    ))}
+                    <section className="pt-6">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        When to Seek In-Person Care
+                      </h3>
+                      <p className="mt-2 text-gray-700 leading-relaxed">
+                        {report?.when_to_seek_care}
+                      </p>
+                    </section>
                   </div>
-                  </Card>
-                  <Card>
-                  <div className="space-y-2 text-sm">
-                    {Object.values(consult.medical_history || {}).map((item, index) => (
-                      <span key={index} className="block">
-                        <strong>{item.fieldName}:</strong>{" "}
-                        {Array.isArray(item.value)
-                          ? item.value.join(", ")
-                          : item.value}
-                      </span>
-                    ))}
-                  </div>
-                  </Card>
-                </div>
-
-                         
+                </Card>
               </div>
             )}
           </Card>
-        {consult.status === 'DECLINED' && (
+        )}
+        <Card>
+          <button
+            type="button"
+            onClick={() => setViewQuestion(!viewQuestion)}
+            className="w-full flex items-center justify-between text-left"
+          >
+            <h3 className="text-lg font-semibold text-gray-900">
+              View Question
+            </h3>
+            <svg
+              className={`w-5 h-5 transition-transform ${
+                viewQuestion ? "rotate-180" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+
+          {viewQuestion && (
+            <div >
+              <div className="mt-6 space-y-4">
+                <Textarea
+                  label="Question"
+                  value={consult.question_body}
+                  disabled={true}
+                />
+              
+                <Card>
+                  <div className="space-y-4 text-sm">
+                    <p>
+                      <strong>Date of birth:</strong>{" "}
+                      {getFormatedDate(consult.date_of_birth)}
+                    </p>
+                    <p>
+                      <strong>Age:</strong>{" "}
+                      {calculateAge(consult.date_of_birth)}
+                    </p>
+                    <p>
+                      <strong>State:</strong> {consult.state_at_service}
+                    </p>
+                    <p>
+                      <strong>Topic:</strong>{" "}
+                      {consult.topics.map((topic) => topic.name + " ") ||
+                        "General concern"}
+                    </p>
+                  </div>
+                </Card>
+                <Card>
+                  <div className="grid grid-cols-2 gap-6">
+                    {consult.consult_specialty_symptoms.map((item) => (
+                      <div
+                        key={item.specialty_symptom.id}
+                        className={`p-3 rounded-lg shadow-sm ${getSeverityColor(
+                          item.Value ?? 0
+                        )}`}
+                      >
+                        <p className="text-xs text-gray-600">
+                          {item.specialty_symptom.symptom.name}
+                        </p>
+                        <p className="text-lg font-semibold text-gray-900">
+                          {item.Value ?? 0}/10
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+                <Card>
+                  <div className="space-y-4 text-sm">
+                    {Object.values(consult.medical_history || {}).map(
+                      (item, index) => (
+                        <span key={index} className="block">
+                          <strong>{item.fieldName}:</strong>{" "}
+                          {Array.isArray(item.value)
+                            ? item.value.join(", ")
+                            : item.value}
+                        </span>
+                      )
+                    )}
+                  </div>
+                </Card>
+              </div>
+            </div>
+          )}
+        </Card>
+        {consult.status === "DECLINED" && (
           <Card className="bg-gray-50">
             <p className="text-sm text-gray-700">
-              Your question was declined. A full refund has been processed to your original payment method. You should see it within 5-7 business days.
+              Your question was declined. A full refund has been processed to
+              your original payment method. You should see it within 5-7
+              business days.
             </p>
           </Card>
         )}

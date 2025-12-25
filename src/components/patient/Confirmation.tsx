@@ -14,6 +14,7 @@ interface ConfirmationProps {
 
 export const Confirmation: React.FC<ConfirmationProps> = ({ onViewStatus, onClose }) => {
   const expectedTime = new Date();
+  const CONSULT_REPLY_HOURS = import.meta.env.VITE_CONSULT_REPLY_HOURS;
   expectedTime.setHours(19, 0, 0);
 
   const { consultId } = useParams<{ consultId: string }>();
@@ -22,21 +23,31 @@ export const Confirmation: React.FC<ConfirmationProps> = ({ onViewStatus, onClos
   useEffect(() => { setTitle("Submitted"); }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      
-      
-      <div className="max-w-2xl mx-auto px-4 py-6">
+    <div className="bg-gradient-to-b from-blue-50 to-blue-50">
+      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         <Card className="text-center space-y-6">
           <div className="w-16 h-16 mx-auto bg-green-100 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            <svg
+              className="w-8 h-8 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Question submitted!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Question submitted!
+            </h2>
             <p className="text-gray-600">
-              Your question is in review. You'll hear by {expectedTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}.
+              Your question is in review. You'll hear within {CONSULT_REPLY_HOURS} hours.
             </p>
           </div>
 
@@ -46,14 +57,16 @@ export const Confirmation: React.FC<ConfirmationProps> = ({ onViewStatus, onClos
             </p>
             <ul className="text-sm text-blue-800 space-y-1">
               <li>• Your payment is on hold (not charged yet)</li>
-              <li>• Dr. Chen will review your question</li>
-              <li>• If accepted, you'll be charged and receive a detailed report</li>
+              <li>• The doctor will review your question</li>
+              <li>
+                • If accepted, you'll be charged and receive a detailed report
+              </li>
               <li>• If declined, you'll receive an automatic refund</li>
             </ul>
           </div>
 
           <div className="space-y-3">
-            <Button fullWidth onClick={()=> onViewStatus(consultId)}>
+            <Button fullWidth onClick={() => onViewStatus(consultId)}>
               View status
             </Button>
             <Button fullWidth variant="secondary" onClick={onClose}>
@@ -62,7 +75,8 @@ export const Confirmation: React.FC<ConfirmationProps> = ({ onViewStatus, onClos
           </div>
 
           <p className="text-xs text-gray-500">
-            We'll send you a secure link to check your status. No symptoms or personal details will be included in the email.
+            We'll send you a secure link to check your status. No symptoms or
+            personal details will be included in the email.
           </p>
         </Card>
       </div>

@@ -97,16 +97,34 @@ useEffect(() => {
   };
 
   const toggleOption = (fieldName: string, optionValue: string) => {
-    setFormData(prev => {
-      const current = prev[fieldName] || [];
-      return {
-        ...prev,
-        [fieldName]: current.includes(optionValue)
-          ? current.filter((o: string) => o !== optionValue)
-          : [...current, optionValue],
-      };
-    });
-  };
+      setFormData(prev => {
+        const current: string[] = prev[fieldName] || [];
+
+        // If the clicked option is already selected, remove it
+        if (current.includes(optionValue)) {
+          return {
+            ...prev,
+            [fieldName]: current.filter(o => o !== optionValue),
+          };
+        } else {
+          // If the clicked option is 'None', replace all other selections with 'None'
+          if (optionValue === "None") {
+            return {
+              ...prev,
+              [fieldName]: ["None"],
+            };
+          } else {
+            // If another option is clicked while 'None' is selected, remove 'None'
+            const newSelection = current.filter(o => o !== "None");
+            return {
+              ...prev,
+              [fieldName]: [...newSelection, optionValue],
+            };
+          }
+        }
+      });
+    };
+
 
    // Toggle topic chip selection
   const toggleTopic = (topic: Topic) => {
@@ -239,14 +257,21 @@ useEffect(() => {
                     <label className="block text-md font-medium text-gray-700 mb-2">{field.field_name}</label>
               <div className="flex flex-wrap gap-2">
                 
-                {field.options.map(opt => (
-                  <Chip
-                    key={opt.option_id}
-                    label={opt.option_value}
-                    selected={(formData[field.field_name] || []).includes(opt.option_value)}
-                    onClick={() => toggleOption(field.field_name, opt.option_value)}
-                  />
-                ))}
+                  {field.options.map(opt => {
+                      const selectedValues = formData[field.field_name] || [];
+                      const isNoneSelected = selectedValues.includes("None"); // Check if 'None' is selected
+                      const isDisabled = isNoneSelected && opt.option_value !== "None"; // Disable other chips if 'None' is selected
+
+                      return (
+                        <Chip
+                          key={opt.option_id}
+                          label={opt.option_value}
+                          selected={selectedValues.includes(opt.option_value)}
+                          disabled={isDisabled} // Disable chips conditionally
+                          onClick={() => toggleOption(field.field_name, opt.option_value)}
+                        />
+                      );
+                    })}
               </div>
               </div>
             )}

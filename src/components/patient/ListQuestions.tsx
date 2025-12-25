@@ -14,14 +14,14 @@ interface MyQuestionsProps {
   onSelectConsult: (consult: ConsultDetail, destination: string, preCheckData?: PreCheckData, questionData?: QuestionDataNew) => void;
 }
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const tabs = ["all", "pending", "declined", "timed out", "completed", "draft"] as const;
+const tabs = ["all", "pending", "declined", "timed-out", "completed", "draft"] as const;
 export const MyQuestions: React.FC<MyQuestionsProps> = ({
   onSelectConsult,
   onViewStatus,
  
 }) => {
   const [filter, setFilter] = useState<
-    "all" | "pending" | "declined" | "timed out" | "completed" | "draft"
+    "all" | "pending" | "declined" | "timed-out" | "completed" | "draft"
   >("all");
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get("tab") || "all";
@@ -105,7 +105,7 @@ const filteredConsultDetails = (consultdetails || []).filter((c) => {
         return ["pending", "SUBMITTED"].includes(c.status);
       case "declined":
         return ["DECLINED", "declined"].includes(c.status);
-      case "timed out":
+      case "timed-out":
         return ["TIMEDOUT", "AUTO_DECLINED"].includes(c.status);
       case "completed":
         return ["ANSWERED", "completed"].includes(c.status);
@@ -280,21 +280,18 @@ const filteredConsultDetails = (consultdetails || []).filter((c) => {
   useEffect(() => { setTitle("My Consults"); localStorage.removeItem(`lastConsultId_${userId}`); }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">      
-
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+    <div className="bg-gradient-to-b from-blue-50 to-blue-50">
+      <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
         {/* Filter Tabs */}
         <div className="flex gap-2 overflow-x-auto pb-2">
-          {(tabs).map(
-            (f) => (
-              <Chip
-                key={f}
-                label={f.charAt(0).toUpperCase() + f.slice(1)}
-                selected={currentTab === f}
-                onClick={() => setTab(f)}
-              />
-            )
-          )}
+          {tabs.map((f) => (
+            <Chip
+              key={f}
+              label={f.charAt(0).toUpperCase() + f.slice(1)}
+              selected={currentTab === f}
+              onClick={() => setTab(f)}
+            />
+          ))}
         </div>
 
         {/* Empty State */}
@@ -313,16 +310,19 @@ const filteredConsultDetails = (consultdetails || []).filter((c) => {
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h3 className="font-semibold text-gray-900">
-                      Topic: <span>{consult.topics.map((topic) => (
-                          topic.name + " "
-                      ))}</span>
+                      Topic:{" "}
+                      <span>
+                        {consult.topics.map((topic) => topic.name + " ")}
+                      </span>
                     </h3>
                     <p className="text-sm text-gray-600">
                       State: {consult.state_at_service}
                     </p>
                   </div>
                   <span className="text-xs text-gray-500">
-                    {new Date(getConsultDate(consult) || '').toLocaleTimeString()}
+                    {new Date(
+                      getConsultDate(consult) || ""
+                    ).toLocaleTimeString()}
                   </span>
                 </div>
 
@@ -336,9 +336,13 @@ const filteredConsultDetails = (consultdetails || []).filter((c) => {
                       consult.status
                     )}`}
                   >
-                    {(consult.status === "ISDRAFT")? "DRAFT" : consult.status.toUpperCase()}
+                    {consult.status === "ISDRAFT"
+                      ? "DRAFT"
+                      : consult.status.toUpperCase()}
                   </span>
-                  <span className="text-xs text-gray-500">ID: {extractSixDigits(consult.id)}</span>
+                  <span className="text-xs text-gray-500">
+                    ID: {extractSixDigits(consult.id)}
+                  </span>
                 </div>
 
                 {/* Only show buttons for draft consults */}
@@ -369,31 +373,31 @@ const filteredConsultDetails = (consultdetails || []).filter((c) => {
           </div>
         )}
         {showDeleteModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-4">
-          <div className="bg-white rounded-xl w-full max-w-sm p-6 text-center space-y-4 shadow-lg">
-            <h2 className="text-lg font-semibold text-gray-800">
-              Are you sure you want to delete this draft?
-            </h2>
-            <p className="text-sm text-gray-600">
-              This action cannot be undone.
-            </p>
-            <div className="flex justify-center gap-4 mt-4">
-              <button
-                onClick={confirmDelete}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg w-24 hover:bg-red-600"
-              >
-                Delete
-              </button>
-              <button
-                onClick={cancelDelete}
-                className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg w-24 hover:bg-gray-300"
-              >
-                Cancel
-              </button>
+          <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-4">
+            <div className="bg-white rounded-xl w-full max-w-sm p-6 text-center space-y-4 shadow-lg">
+              <h2 className="text-lg font-semibold text-gray-800">
+                Are you sure you want to delete this draft?
+              </h2>
+              <p className="text-sm text-gray-600">
+                This action cannot be undone.
+              </p>
+              <div className="flex justify-center gap-4 mt-4">
+                <button
+                  onClick={confirmDelete}
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg w-24 hover:bg-red-600"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={cancelDelete}
+                  className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg w-24 hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
       </div>
     </div>
   );

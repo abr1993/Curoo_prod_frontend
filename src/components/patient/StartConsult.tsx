@@ -16,6 +16,7 @@ interface StartConsultProps {
   
 }
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const CONSULT_REPLY_HOURS = import.meta.env.VITE_CONSULT_REPLY_HOURS;
 export const StartConsult: React.FC<StartConsultProps> = ({
   onStartConsult
 }) => {
@@ -80,28 +81,20 @@ const location = useLocation();
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
-      <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+    <div className="bg-gradient-to-b from-blue-50 to-blue-50">
+      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         <Card>
           <div className="flex items-start gap-4 mb-6">
-          {/* {(provider.avatar!==null)?          
-              <img
-                  src={ `${VITE_API_BASE_URL}/${provider.avatar}`}
-                  alt={provider.display_name}
-                  className="w-20 h-20 rounded-full object-cover"
-                /> :
-                 
-                /*  */
-          }        
+            
             <Avatar className="w-20 h-20">
-                  <AvatarImage
-                    src={provider.avatar}
-                    alt={provider.display_name}
-                  />
-                  <AvatarFallback className="bg-gray-200">
-                    <User className="w-6 h-6 text-gray-500" />
-                  </AvatarFallback>
-                </Avatar>
+              <AvatarImage
+                src={provider.avatar}
+                alt={provider.display_name}
+              />
+              <AvatarFallback className="bg-gray-200">
+                <User className="w-6 h-6 text-gray-500" />
+              </AvatarFallback>
+            </Avatar>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900 mb-1">
                 {provider.display_name}
@@ -111,14 +104,14 @@ const location = useLocation();
                 {provider.specialty}
               </p>
               <div className="inline-grid grid-flow-row sm:grid-flow-col auto-cols-max gap-2 sm:gap-3">
-                  <div className="flex items-center justify-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm whitespace-nowrap">
-                    Licensed in {provider.licenses.map((l) => l.state).join(", ")}
-                  </div>
-
-                  <div className="flex items-center justify-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm whitespace-nowrap">
-                    {provider.provider_experience_in_years} year(s) of Experience
-                  </div>
+                <div className="flex items-center justify-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm whitespace-nowrap">
+                  Licensed in {provider.licenses.map((l) => l.state).join(", ")}
                 </div>
+
+                <div className="flex items-center justify-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm whitespace-nowrap">
+                  {provider.provider_experience_in_years} year(s) of Experience
+                </div>
+              </div>
               {/* <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
                 Licensed in {provider.licenses.map((l) => l.state).join(", ")}
               </div> */}
@@ -129,12 +122,17 @@ const location = useLocation();
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-2xl font-bold text-gray-900">
-                  ${provider.licenses.length > 0 ? (Math.min(...provider.licenses.map(l => Number(l.price_cents)))/100).toFixed(2)
-                      : "No pricing available"
-                  }                  
+                  $
+                  {provider.licenses.length > 0
+                    ? (
+                        Math.min(
+                          ...provider.licenses.map((l) => Number(l.price_cents))
+                        ) / 100
+                      ).toFixed(2)
+                    : "No pricing available"}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Typical reply today by 7pm
+                  Typical reply within {CONSULT_REPLY_HOURS} hours
                 </p>
               </div>
               <img
@@ -152,14 +150,9 @@ const location = useLocation();
           </h2>
           <div className="flex flex-wrap gap-2 mb-4">
             {conditions.slice(0, 6).map((topic, index) => (
-              <Chip
-                key={index}
-                label={topic.name}
-                                
-              />
+              <Chip key={index} label={topic.name} />
             ))}
           </div>
-          
         </Card>
 
         <Card>

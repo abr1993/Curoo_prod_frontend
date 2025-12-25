@@ -5,6 +5,7 @@ interface ChipProps {
   selected?: boolean;
   onClick?: () => void;
   variant?: 'default' | 'info' | 'warning' | 'success';
+  disabled?: boolean;
 }
 
 export const Chip: React.FC<ChipProps> = ({
@@ -12,6 +13,7 @@ export const Chip: React.FC<ChipProps> = ({
   selected = false,
   onClick,
   variant = 'default',
+  disabled = false
 }) => {
   const variants = {
     default: selected
@@ -26,9 +28,12 @@ export const Chip: React.FC<ChipProps> = ({
     <button
       type="button"
       onClick={onClick}
-      className={`px-4 py-2 rounded-full border-2 text-sm font-medium transition-all ${
+      disabled = {disabled}
+      className={`px-4 py-2 rounded-full border-2 whitespace-nowrap text-sm font-medium transition-all ${
         variants[variant]
-      } ${onClick ? 'cursor-pointer' : 'cursor-default'}`}
+      } ${disabled 
+          ? 'opacity-40 cursor-not-allowed grayscale-[0.5]'
+        : onClick ? 'cursor-pointer' : 'cursor-default'}`}
     >
       {label}
     </button>

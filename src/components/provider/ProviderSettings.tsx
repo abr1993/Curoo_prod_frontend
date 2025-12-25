@@ -274,32 +274,32 @@ const handleconsolelog = () =>{
 }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+    <div className="bg-gradient-to-b from-blue-50 to-blue-50">
+      <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
         {/* Profile Section */}
         <Card>
           <h2 className="text-lg font-semibold mb-4">Profile Information</h2>
           <div className="flex items-center gap-4">
             <div className="relative w-28 h-28 rounded-full overflow-hidden bg-gray-100 border">
-              <Avatar className="w-28 h-28">                
-                      <AvatarImage
-                          src={ 
-                            (typeof photo === "string" && photo)
-                              ? photo
-                              : photoPreview || ""
-                            }
-                          alt="Profile"
-                      />
-                      <AvatarFallback className="flex items-center justify-center h-full bg-gray-200">
-                        <User className="w-8 h-8 text-gray-500" />
-                      </AvatarFallback>
-                  </Avatar>
+              <Avatar className="w-28 h-28">
+                <AvatarImage
+                  src={ 
+                       (typeof photo === "string" && photo)
+                         ? photo
+                          : photoPreview || ""
+                   }
+                  alt="Profile"
+                />
+                <AvatarFallback className="flex items-center justify-center h-full bg-gray-200">
+                  <User className="w-8 h-8 text-gray-500" />
+                </AvatarFallback>
+              </Avatar>
               {/* {photo ? (
                 <img
                   
                   src={
                         typeof photo === "string"
-                          ? `${VITE_API_BASE_URL}/${photo}`
+                          ? photo
                           : photoPreview || ""
                       }
                   alt="Profile"
@@ -350,10 +350,10 @@ const handleconsolelog = () =>{
             <span className="text-sm text-gray-700">
               Provider is {unavailable ? <b>unavailable</b> : <b>Available</b>}
             </span>
-            <button           
+            <button
               onClick={() => setUnavailable(!unavailable)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                unavailable ? "bg-gray-300":"bg-blue-600"
+                unavailable ? "bg-gray-300" : "bg-blue-600"
               }`}
             >
               <span
@@ -372,35 +372,34 @@ const handleconsolelog = () =>{
           </h2>
           <div className="flex gap-2 mb-4">
             <select
-                value={newSpecialty} // should store the specialty ID
-                onChange={(e) => setNewSpecialty(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-full"
-                disabled={unavailable}
-              >
-                <option value="">Select specialty...</option>
-                {allSpecialties.map((spec) => (
-                  <option key={spec.id} value={spec.id}>
-                    {spec.name}
-                  </option>
-                ))}
-              </select>
-              <Button onClick={handleAddSpecialty} disabled={unavailable}>
-                Add
-              </Button>
-
+              value={newSpecialty} // should store the specialty ID
+              onChange={(e) => setNewSpecialty(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-full"
+              disabled={unavailable}
+            >
+              <option value="">Select specialty...</option>
+              {allSpecialties.map((spec) => (
+                <option key={spec.id} value={spec.id}>
+                  {spec.name}
+                </option>
+              ))}
+            </select>
+            <Button onClick={handleAddSpecialty} disabled={unavailable}>
+              Add
+            </Button>
           </div>
 
           {specialties.map((spec) => (
             <div
               key={spec.name}
               className={`border rounded-lg p-4 mb-4 bg-white shadow-sm ${
-                 unavailable ? "opacity-50 pointer-events-none" : ""
+                unavailable ? "opacity-50 pointer-events-none" : ""
               }`}
             >
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-medium">{spec.name}</h3>
                 <Button
-                  variant="secondary"                  
+                  variant="secondary"
                   onClick={() => removeSpecialty(spec.name)}
                   disabled={!spec.available}
                 >
@@ -413,7 +412,9 @@ const handleconsolelog = () =>{
                   Accept consults for this specialty
                 </span>
                 <button
-                  onClick={() => {toggleAvailability(spec.name); }}
+                  onClick={() => {
+                    toggleAvailability(spec.name);
+                  }}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                     spec.available ? "bg-blue-600" : "bg-gray-300"
                   }`}
@@ -427,89 +428,91 @@ const handleconsolelog = () =>{
               </div>
               <div className="mt-3 space-y-3">
                 <Input
-                    label="Professional Experience (in years)"
-                    value={spec.experience_in_years}
-                    onChange={(e) => handleExperienceChange(spec.name, e.target.value)}
-                    placeholder="Enter your experience in this field in years..."
-                  />
+                  label="Professional Experience (in years)"
+                  value={spec.experience_in_years}
+                  onChange={(e) =>
+                    handleExperienceChange(spec.name, e.target.value)
+                  }
+                  placeholder="Enter your experience in this field in years..."
+                />
               </div>
               <div
-                    className={`mt-3 space-y-3 transition-opacity ${
-                      !spec.available 
-                        ? "opacity-50 pointer-events-none"
-                        : "opacity-100"
-                    }`}
-                  >
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Licensure States
-              </label>
-              <div className="grid grid-cols-5 gap-2 mb-4">
-                {stateOptions.map((state) => (
-                  <button
-                    key={state}
-                    onClick={() => toggleState(spec.name, state)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium ${
-                      spec.states.some((s) => s.state === state)
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    {state}
-                  </button>
-                ))}
-              </div>
-
-              {spec.states.length > 0 && (
-                <div className="mt-3 space-y-3">
-                  {spec.states.map((st) => (
-                    <div
-                      key={st.state}
-                      className="grid grid-cols-2 gap-3 items-center"
+                className={`mt-3 space-y-3 transition-opacity ${
+                  !spec.available
+                    ? "opacity-50 pointer-events-none"
+                    : "opacity-100"
+                }`}
+              >
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Licensure States
+                </label>
+                <div className="grid grid-cols-5 gap-2 mb-4">
+                  {stateOptions.map((state) => (
+                    <button
+                      key={state}
+                      onClick={() => toggleState(spec.name, state)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium ${
+                        spec.states.some((s) => s.state === state)
+                          ? "bg-blue-600 text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
                     >
-                      <div>
-                        <label className="text-sm font-medium text-gray-700">
-                          {st.state} — Price ($)
-                        </label>
-                        <input
-                          type="number"
-                          min={PRICE_MIN}
-                          max={PRICE_MAX}
-                          step={0.01}
-                          value={st.price}
-                          onChange={(e) =>
-                            handleStatePriceChange(
-                              spec.name,
-                              st.state,
-                              parseFloat(e.target.value)
-                            )
-                          }
-                          className="w-full border rounded px-2 py-1"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-sm font-medium text-gray-700">
-                          Daily Consult Cap
-                        </label>
-                        <input
-                          type="number"
-                          min={0}
-                          step={1}
-                          value={st.dailyCap}
-                          onChange={(e) =>
-                            handleStateCapChange(
-                              spec.name,
-                              st.state,
-                              parseInt(e.target.value)
-                            )
-                          }
-                          className="w-full border rounded px-2 py-1"
-                        />
-                      </div>
-                    </div>
+                      {state}
+                    </button>
                   ))}
                 </div>
-              )}
+
+                {spec.states.length > 0 && (
+                  <div className="mt-3 space-y-3">
+                    {spec.states.map((st) => (
+                      <div
+                        key={st.state}
+                        className="grid grid-cols-2 gap-3 items-center"
+                      >
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">
+                            {st.state} — Price ($)
+                          </label>
+                          <input
+                            type="number"
+                            min={PRICE_MIN}
+                            max={PRICE_MAX}
+                            step={0.01}
+                            value={st.price}
+                            onChange={(e) =>
+                              handleStatePriceChange(
+                                spec.name,
+                                st.state,
+                                parseFloat(e.target.value)
+                              )
+                            }
+                            className="w-full border rounded px-2 py-1"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">
+                            Daily Consult Cap
+                          </label>
+                          <input
+                            type="number"
+                            min={0}
+                            step={1}
+                            value={st.dailyCap}
+                            onChange={(e) =>
+                              handleStateCapChange(
+                                spec.name,
+                                st.state,
+                                parseInt(e.target.value)
+                              )
+                            }
+                            className="w-full border rounded px-2 py-1"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -523,23 +526,23 @@ const handleconsolelog = () =>{
             Save Changes
           </Button>
         </div>
-          {showSuccessModal && (
-           <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-4">
-              <div className="bg-white rounded-xl w-full max-w-sm p-6 text-center space-y-4 shadow-lg">
-                <h2 className="text-lg font-semibold text-gray-800">{modalMessage}</h2>
-                <div className="flex justify-center gap-4 mt-4">
-                  <button
-                    onClick={()=> setShowSuccessModal(false)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg w-24"
-                  >
-                    OK
-                  </button>              
-                </div>
+        {showSuccessModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-4">
+            <div className="bg-white rounded-xl w-full max-w-sm p-6 text-center space-y-4 shadow-lg">
+              <h2 className="text-lg font-semibold text-gray-800">
+                {modalMessage}
+              </h2>
+              <div className="flex justify-center gap-4 mt-4">
+                <button
+                  onClick={() => setShowSuccessModal(false)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg w-24"
+                >
+                  OK
+                </button>
               </div>
             </div>
-          
+          </div>
         )}
-
       </div>
     </div>
   );

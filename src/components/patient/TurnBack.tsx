@@ -13,7 +13,11 @@ const allowedStates = ["IN"];
 export const TurnBack: React.FC<TurnBackProps> = ({ reason, onBack }) => {
 
   const sortedStates = [...allowedStates].sort(); // make a copy and sort alphabetically
-  const formattedStates = sortedStates.slice(0, -1).join(", ") + " and " + sortedStates.slice(-1);
+  const formattedStates =
+  sortedStates.length === 1
+    ? sortedStates[0] // just one state, no 'and'
+    : sortedStates.slice(0, -1).join(", ") + " and " + sortedStates.slice(-1);
+
   /* const content = {
     coverage: {
       title: 'Not available in the pilot',
@@ -147,24 +151,33 @@ export const TurnBack: React.FC<TurnBackProps> = ({ reason, onBack }) => {
   }; 
 
   return (
-    <div className="min-h-screen bg-gray-50">
-            
-      <div className="max-w-2xl mx-auto px-4 py-6">
+    <div className="bg-gradient-to-b from-blue-50 to-blue-50">
+      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         <Card>
           <div className="text-center space-y-4">
             <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center">
-              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              <svg
+                className="w-8 h-8 text-red-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
               </svg>
             </div>
-            
+
             <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
             <p className="text-gray-600">{message}</p>
             {subMessage && (
               <p className="text-sm text-gray-500 italic">{subMessage}</p>
-            )}            
+            )}
 
-            {reason === 'redFlag'  && (
+            {reason === "redFlag" && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-left">
                 <p className="text-sm text-red-800 font-semibold mb-2">
                   ⚠️ Emergency warning signs:
@@ -175,7 +188,8 @@ export const TurnBack: React.FC<TurnBackProps> = ({ reason, onBack }) => {
                   <li>• Chemical exposure or trauma</li>
                 </ul>
                 <p className="text-sm text-red-800 font-semibold mt-3">
-                  If you're experiencing these, call 911 or go to the ER immediately.
+                  If you're experiencing these, call 911 or go to the ER
+                  immediately.
                 </p>
               </div>
             )}

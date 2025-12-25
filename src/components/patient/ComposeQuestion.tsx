@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Header } from '../shared/Header';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { Textarea } from '../ui/Textarea';
+import { Textarea } from '../ui/TextAreaNew';
 import { Input } from '../ui/Input';
 import { Slider } from '../ui/Slider';
 import { PRONOUNS, SEX_ASSIGNED_AT_BIRTH } from '../../utils/constants';
@@ -48,7 +48,8 @@ export const ComposeQuestion: React.FC<ComposeQuestionProps> = ({
     }
   );
   // Individual form fields
-  const [question, setQuestion] = useState(questionData.question);  
+  const [question, setQuestion] = useState(questionData.question); 
+  const questionRef = useRef<HTMLTextAreaElement>(null); 
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
   const [noMedications, setNoMedications] = useState(questionData.noMedications);
@@ -202,16 +203,32 @@ console.log("Patient DOB:", preCheckData.dob);
     console.log("showFullName", showFullName);
     e.preventDefault();
     const newErrors: Record<string, string> = {};
+    if (!question.trim()) {
+        
+        setModalMessage("❌ Please describe your concern.");
+        setShowModal(true);
 
-    if (!question.trim()) newErrors.question = 'Please describe your concern';
+        requestAnimationFrame(() => {
+          const ref = questionRef;
+          ref?.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+          ref?.current?.focus?.();
+        });
+
+        return;
+      }
+
+   // if (!question.trim()) newErrors.question = 'Please describe your concern';
     /* if (!medications.trim() && !noMedications) {
       newErrors.medications = 'Please list medications or check "no daily medications"';
     } */
 
-    if (Object.keys(newErrors).length > 0) {
+    /* if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
-    }
+    } */
     const formattedSymptoms = symptoms.map(symptom => ({
       specialtySymptomId: symptom.specialty_symptom_id,
       symptomName: symptom.symptom_name,   // 👈 add label
@@ -425,14 +442,14 @@ console.log("Patient DOB:", preCheckData.dob);
   
 
   return (
-    <div className="min-h-screen bg-gray-50">      
-      
-      <div className="max-w-2xl mx-auto px-4 py-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="bg-gradient-to-b from-blue-50 to-blue-50">
+      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <Card>
             <Textarea
               label="Your question"
               placeholder="Briefly describe what's going on..."
+              ref={questionRef}
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               error={errors.question}
@@ -446,132 +463,152 @@ console.log("Patient DOB:", preCheckData.dob);
               onClick={() => setShowDetails(!showDetails)}
               className="w-full flex items-center justify-between text-left"
             >
-              <h3 className="text-lg font-semibold text-gray-900">Add details</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Add details
+              </h3>
               <svg
-                className={`w-5 h-5 transition-transform ${showDetails ? 'rotate-180' : ''}`}
+                className={`w-5 h-5 transition-transform ${
+                  showDetails ? "rotate-180" : ""
+                }`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
               </svg>
             </button>
 
             {showDetails && (
               <div className="mt-6 space-y-6">
-                
-                {symptoms.map(symptom => (
+                {symptoms.map((symptom) => (
                   <Slider
                     key={symptom.specialty_symptom_id}
                     label={symptom.symptom_name}
                     value={values[symptom.specialty_symptom_id] || 0}
-                    onChange={val => handleSliderChange(symptom.specialty_symptom_id, val)}
+                    onChange={(val) =>
+                      handleSliderChange(symptom.specialty_symptom_id, val)
+                    }
                   />
-                ))}             
+                ))}
 
                 <MedicalHistorySection
-                    providerSpecialtyId={providerSpecialtyId}
-                    onChange={setMedicalHistory}
-                    onNoMedicationsChange={(val) => setNoMedications(val)}
-                    onTopicsChange={setSelectedTopics}
-                    initialHistoryFields={questionData.historyFields}
-                    initialNoMedications={questionData.noMedications}
-                    initialTopics={questionData.topics}
-                  />                 
+                  providerSpecialtyId={providerSpecialtyId}
+                  onChange={setMedicalHistory}
+                  onNoMedicationsChange={(val) => setNoMedications(val)}
+                  onTopicsChange={setSelectedTopics}
+                  initialHistoryFields={questionData.historyFields}
+                  initialNoMedications={questionData.noMedications}
+                  initialTopics={questionData.topics}
+                />
               </div>
             )}
           </Card>
-            
+
           <Card>
-              <div>
-                <label className="block text-lg font-medium text-gray-700 mb-2">
-                  Identity & Privacy
-                </label>
+            <div>
+              <label className="block text-lg font-medium text-gray-700 mb-2">
+                Identity & Privacy
+              </label>
 
-                <div className="border-t pt-4">
-                  <Input
-                    label="Legal name (optional)"
-                    placeholder="First Last"
-                    value={legalName}
-                    onChange={(e) => setLegalName(e.target.value)}
-                    helperText="Stored securely. Doctor sees initials by default."
-                  />
+              <div className="border-t pt-4">
+                <Input
+                  label="Legal name (optional)"
+                  placeholder="First Last"
+                  value={legalName}
+                  onChange={(e) => setLegalName(e.target.value)}
+                  helperText="Stored securely. Doctor sees initials by default."
+                />
 
-                  {/* 🔽 New radio button group */}
-                  <div className="mt-4">
-                    <p className="text-sm font-medium text-gray-700 mb-2">
-                      Show my name to the doctor as
-                    </p>
+                {/* 🔽 New radio button group */}
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-700 mb-2">
+                    Show my name to the doctor as
+                  </p>
 
-                    <div className="flex flex-row items-center gap-3">
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="radio"
-                          name="displayNamePreference"
-                          value="initials"
-                          checked={!showFullName}
-                          onChange={() => setShowFullName(false)}
-                          className="text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">Initials only</span>
-                      </label>
+                  <div className="flex flex-row items-center gap-3">
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="displayNamePreference"
+                        value="initials"
+                        checked={!showFullName}
+                        onChange={() => setShowFullName(false)}
+                        className="text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">
+                        Initials only
+                      </span>
+                    </label>
 
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input
-                          type="radio"
-                          name="displayNamePreference"
-                          value="full"
-                          checked={showFullName}
-                          onChange={() => setShowFullName(true)}
-                          className="text-blue-600 focus:ring-blue-500"
-                        />
-                        <span className="text-sm text-gray-700">Full name</span>
-                      </label>
-                    </div>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="displayNamePreference"
+                        value="full"
+                        checked={showFullName}
+                        onChange={() => setShowFullName(true)}
+                        className="text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="text-sm text-gray-700">Full name</span>
+                    </label>
                   </div>
                 </div>
-                <div className="border-t pt-4">
-                  <Select
-                      label="Pronouns"
-                      options={[
-                        /* { value: '', label: 'Select your pronouns' }, */
-                        { value: '', label: '' },
-                        ...PRONOUNS,
-                        ]}
-                      value={pronouns}
-                     onChange={(e) => setPronouns(e.target.value)}
-                      error={errors.state}
-                  />
-                  <Select
-                      label="Sex Assigned At Birth"
-                      options={[
-                        { value: '', label: '' },
-                        ...SEX_ASSIGNED_AT_BIRTH.map((s) => ({ value: s, label: s })),
-                        ]}
-                      value={sexatbirth}
-                     onChange={(e) => setSexAtBirth(e.target.value)}
-                      error={errors.state}
-                  />
-                </div>
               </div>
-            </Card>
+              <div className="border-t pt-4">
+                <Select
+                  label="Pronouns"
+                  options={[
+                    /* { value: '', label: 'Select your pronouns' }, */
+                    { value: "", label: "" },
+                    ...PRONOUNS,
+                  ]}
+                  value={pronouns}
+                  onChange={(e) => setPronouns(e.target.value)}
+                  error={errors.state}
+                />
+                <Select
+                  label="Sex Assigned At Birth"
+                  options={[
+                    { value: "", label: "" },
+                    ...SEX_ASSIGNED_AT_BIRTH.map((s) => ({
+                      value: s,
+                      label: s,
+                    })),
+                  ]}
+                  value={sexatbirth}
+                  onChange={(e) => setSexAtBirth(e.target.value)}
+                  error={errors.state}
+                />
+              </div>
+            </div>
+          </Card>
 
           <div className="sticky flex gap-3 z-50 bottom-0 bg-white p-4 border-t">
-          {role === "PATIENT" && (
-            <Button type="button" variant="secondary" className="whitespace-nowrap" onClick={handleSave}>
-              <span className="hidden sm:inline">Save/Finish Later</span>
-              <span className="inline sm:hidden">Save</span>
+            {role === "PATIENT" && (
+              <Button
+                type="button"
+                variant="secondary"
+                className="whitespace-nowrap"
+                onClick={handleSave}
+              >
+                <span className="hidden sm:inline">Save/Finish Later</span>
+                <span className="inline sm:hidden">Save</span>
+              </Button>
+            )}
+            <Button type="submit" fullWidth className="flex-1">
+              Next
             </Button>
-          )}
-          <Button type="submit" fullWidth className="flex-1">
-            Next
-          </Button>
-        </div>
+          </div>
 
           {showPreview && (
             <PreviewModal
-               preCheckData={preCheck}
-               questionData={draftQuestionData}
+              preCheckData={preCheck}
+              questionData={draftQuestionData}
               onEdit={() => setShowPreview(false)}
               onContinue={handleContinueFromPreview}
             />
@@ -579,20 +616,22 @@ console.log("Patient DOB:", preCheckData.dob);
           {showModal && (
             <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-4">
               <div className="bg-white rounded-xl w-full max-w-sm p-6 text-center space-y-4 shadow-lg">
-                <h2 className="text-lg font-semibold text-gray-800">{modalMessage}</h2>
+                <h2 className="text-lg font-semibold text-gray-800">
+                  {modalMessage}
+                </h2>
                 <div className="flex justify-center gap-4 mt-4">
                   <button
-                    onClick={() => { setShowModal(false);                  
+                    onClick={() => {
+                      setShowModal(false);
                     }}
                     className="bg-blue-600 text-white px-4 py-2 rounded-lg w-24"
                   >
                     OK
-                  </button>              
+                  </button>
                 </div>
               </div>
             </div>
           )}
-         
         </form>
       </div>
     </div>

@@ -15,7 +15,7 @@ export const ProviderInbox: React.FC<ProviderInboxProps> = ({
   onSelectConsult,
   onSettings,
 }) => {
-  const [filter, setFilter] = useState<'pending' | 'accepted' | 'answered' | 'declined'| 'timed out' | 'all'>('pending');
+  const [filter, setFilter] = useState<'pending' | 'accepted' | 'answered' | 'declined'| 'timed-out' | 'all'>('pending');
   const [consults, setConsults] = useState<ConsultDetail[]>([]);
   const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -23,13 +23,13 @@ export const ProviderInbox: React.FC<ProviderInboxProps> = ({
   const filteredConsults = consults.filter((c) => {
     if (filter === 'all') return true;
 
-      const statusMap: Record<string, 'pending' | 'accepted' | 'answered' | 'declined' | 'timed out'> = {
+      const statusMap: Record<string, 'pending' | 'accepted' | 'answered' | 'declined' | 'timed-out'> = {
       SUBMITTED: 'pending',
       ACCEPTED: 'accepted',
       ANSWERED: 'answered',
       DECLINED: 'declined',
-      AUTO_DECLINED: 'timed out',
-      TIMEDOUT: 'timed out',
+      AUTO_DECLINED: 'timed-out',
+      TIMEDOUT: 'timed-out',
       
     };
 
@@ -124,11 +124,19 @@ export const ProviderInbox: React.FC<ProviderInboxProps> = ({
   if (loading) return <Loader />;
   
   return (
-    <div className="min-h-screen bg-gray-50">
-      
-      <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+    <div className="bg-gradient-to-b from-blue-50 to-blue-50">
+      <div className="max-w-4xl mx-auto px-4 py-4 space-y-4">
         <div className="flex gap-2 overflow-x-auto pb-2">
-          {(['pending', 'accepted', 'answered', 'declined', 'timed out', 'all'] as const).map((f) => (
+          {(
+            [
+              "pending",
+              "accepted",
+              "answered",
+              "declined",
+              "timed-out",
+              "all",
+            ] as const
+          ).map((f) => (
             <Chip
               key={f}
               label={f.charAt(0).toUpperCase() + f.slice(1)}
@@ -145,44 +153,56 @@ export const ProviderInbox: React.FC<ProviderInboxProps> = ({
         ) : (
           <div className="space-y-4">
             {filteredConsults.map((consult) => (
-              <Card key={consult.id} onClick={() => onSelectConsult(consult.id)} className="cursor-pointer">
+              <Card
+                key={consult.id}
+                onClick={() => onSelectConsult(consult.id)}
+                className="cursor-pointer"
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <p className="font-semibold text-gray-900">
-                      {consult.topics.map((item)=>
-                        item.name + " "
-                      )                          
-                      }
+                      {consult.topics.map((item) => item.name + " ")}
                     </p>
-                    <p className="text-sm text-gray-600">{consult.state_at_service}</p>
+                    <p className="text-sm text-gray-600">
+                      {consult.state_at_service}
+                    </p>
                   </div>
                   <span className="text-xs text-gray-500">
-                    {new Date(getConsultDate(consult) || '').toLocaleTimeString()}
+                    {new Date(
+                      getConsultDate(consult) || ""
+                    ).toLocaleString()}
                   </span>
                 </div>
 
-                <p className="text-sm text-gray-700 mb-3 line-clamp-2">{consult.question_body}</p>
+                <p className="text-sm text-gray-700 mb-3 line-clamp-2">
+                  {consult.question_body}
+                </p>
 
-                
-                 <div className="flex flex-wrap gap-2 mb-3"> 
-                  {consult.consult_specialty_symptoms.map((item, index)=>(
-                    <span key={index}
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor( item.Value, item.specialty_symptom.symptom.name)}`} > 
-                        {item.specialty_symptom.symptom.name}: {item.Value} 
-                      </span> 
-                  ))
-                  }
-                 </div>                
-                    <div className="flex justify-between items-center">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                          consult.status
-                        )}`}
-                      >
-                        <strong>{consult.status.toUpperCase()}</strong>
-                      </span>
-                      <span className="text-xs text-gray-500">ID: {extractSixDigits(consult.id)}</span>
-                    </div>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {consult.consult_specialty_symptoms.map((item, index) => (
+                    <span
+                      key={index}
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(
+                        item.Value,
+                        item.specialty_symptom.symptom.name
+                      )}`}
+                    >
+                      {item.specialty_symptom.symptom.name}: {item.Value}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex justify-between items-center">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                      consult.status
+                    )}`}
+                  >
+                    <strong>{consult.status.toUpperCase()}</strong>
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    ID: {extractSixDigits(consult.id)}
+                  </span>
+                </div>
                 {/* {Object.values(consult.medical_history?.data || {}).map((item, index) => (
                   <span key={index} className="block">
                     <strong>{item.field_name}:</strong>{" "}
@@ -191,7 +211,6 @@ export const ProviderInbox: React.FC<ProviderInboxProps> = ({
                       : item.value}
                   </span>
                 ))} */}
-                
               </Card>
             ))}
           </div>

@@ -19,6 +19,7 @@ interface PaymentProps {
   onFailure: (errmessage: string) => void;
 }
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const CONSULT_REPLY_HOURS = import.meta.env.VITE_CONSULT_REPLY_HOURS;
 export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCancel }) => {
   const [consentChecked, setConsentChecked] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -244,9 +245,8 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
   if(error) return <TurnBack reason={'dbupdate'} onBack={onBack} />
 
   return (
-    <div className="min-h-screen bg-gray-50">
-            
-      <div className="max-w-2xl mx-auto px-4 py-6">
+    <div className="bg-gradient-to-b from-blue-50 to-blue-50">
+      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         <Card className="space-y-6">
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
@@ -255,12 +255,14 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
                 ${(provider?.price_cents / 100).toFixed(0)}
               </span>
             </div>
-            <p className="text-sm text-gray-600">Typical reply today by 7pm</p>
+            <p className="text-sm text-gray-600">Typical reply within {CONSULT_REPLY_HOURS} hours</p>
           </div>
 
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
             <p className="text-sm text-amber-900">
-              <strong>Good Faith Estimate:</strong> Your card will be authorized now and charged only if your question is accepted by the physician. If declined, you will receive an automatic refund.
+              <strong>Good Faith Estimate:</strong> Your card will be authorized
+              now and charged only if your question is accepted by the
+              physician. If declined, you will receive an automatic refund.
             </p>
           </div>
 
@@ -269,11 +271,18 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
             checked={consentChecked}
             onChange={(e) => setConsentChecked(e.target.checked)}
           />
-          {consentChecked && 
-              <div className="mt-6 mb-20">
-              <PaymentSection consultId={consultId} amount={(provider?.price_cents)} onFail={handlePaymentFailure} onSuccess={()=> {onSuccess(consultId)}} />
+          {consentChecked && (
+            <div className="mt-6 mb-20">
+              <PaymentSection
+                consultId={consultId}
+                amount={provider?.price_cents}
+                onFail={handlePaymentFailure}
+                onSuccess={() => {
+                  onSuccess(consultId);
+                }}
+              />
             </div>
-          }
+          )}
           {/* <PaymentSection /> */}
           <div className="space-y-3">
             {/* <Button
@@ -290,7 +299,11 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
 
           <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+              <path
+                fillRule="evenodd"
+                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                clipRule="evenodd"
+              />
             </svg>
             Secured by Stripe • HIPAA Compliant
           </div>
@@ -303,28 +316,27 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
                     <Button type="submit" fullWidth>
                       Success
                     </Button>
-                  </div>  */} 
-      {showErrorModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-4">
-          <div className="bg-white rounded-xl w-full max-w-sm p-6 text-center space-y-4 shadow-lg">
-            <h2 className="text-lg font-semibold text-gray-800">{modalMessage}</h2>
-            <div className="flex justify-center gap-4 mt-4">
-              <button
-                onClick={() => {
-                  setShowErrorModal(false);
-                  setModalMessage("");
-                }}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg w-24"
-              >
-                OK
-              </button>
-              
+                  </div>  */}
+        {showErrorModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-4">
+            <div className="bg-white rounded-xl w-full max-w-sm p-6 text-center space-y-4 shadow-lg">
+              <h2 className="text-lg font-semibold text-gray-800">
+                {modalMessage}
+              </h2>
+              <div className="flex justify-center gap-4 mt-4">
+                <button
+                  onClick={() => {
+                    setShowErrorModal(false);
+                    setModalMessage("");
+                  }}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg w-24"
+                >
+                  OK
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}  
-       
-
+        )}
       </div>
     </div>
   );

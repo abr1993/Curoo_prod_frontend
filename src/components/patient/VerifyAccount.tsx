@@ -357,8 +357,8 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) 
     
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white ">
-      <div className="max-w-2xl mx-auto px-4 py-6">
+    <div className="bg-gradient-to-b from-blue-50 to-blue-50">
+      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         <Card className="w-full max-w-md p-6 space-y-6">
           <h1 className="text-2xl font-bold text-center text-gray-900">
             Verify your account

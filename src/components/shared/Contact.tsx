@@ -15,8 +15,7 @@ export const ContactUs: React.FC = () => {
     <div className="bg-gradient-to-b from-blue-50 to-blue-50">
       <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
         <Card>
-          <div className="flex items-start gap-4">           
-
+          <div className="flex items-start gap-4">
             {/* Content */}
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900 mb-1">

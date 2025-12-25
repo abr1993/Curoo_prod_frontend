@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Header } from '../shared/Header';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
@@ -81,9 +81,21 @@ export const CaseReview: React.FC<CaseReviewProps> = ({
   selfcare: selfcareRef,
   seekcare: seekcareRef,  
 };
+const setOverviewRef = useCallback((node: HTMLTextAreaElement | null) => {
+  // Sync with your existing useRef so other parts of the code still work
+  (overviewRef as any).current = node;
 
-
-  console.log("ComposeConsult component loaded");
+  if (node !== null) {
+    // Small delay ensures the browser has finished the layout (essential for 'center' block)
+    requestAnimationFrame(() => {
+      node.scrollIntoView({ behavior: "smooth", block: "center" });
+      
+      // Focus without jumping (since we already handled the scroll)
+      node.focus({ preventScroll: true });
+    });
+  }
+}, []);
+ console.log("ComposeConsult component loaded");
 
   const { consultId } = useParams<{ consultId: string }>();
   const linkToken = new URLSearchParams(window.location.search).get("linkToken");
@@ -395,6 +407,7 @@ export const CaseReview: React.FC<CaseReviewProps> = ({
       self_care_general: selfcare,
       when_to_seek_care: seekcare,
     }; */
+    setLoading(true);
     try{
       const response = await fetch(`${VITE_API_BASE_URL}/api/consults/${consultId}/answer`, {
       method: "POST",
@@ -414,7 +427,9 @@ export const CaseReview: React.FC<CaseReviewProps> = ({
     //const result = await response.json();
     //console.log("Consult created:", result);
     //return result.id;
+    setModalError("");
     setModalMessage("✅ Your review has been successfully submitted. Thank you!");
+    setLoading(false);
     setShowSuccessModal(true);
     //onSubmitAnswer( );
 
@@ -474,137 +489,180 @@ export const CaseReview: React.FC<CaseReviewProps> = ({
     }
 
   const { setTitle } = useHeader();
-    useEffect(() => { setTitle("Review case"); }, []);
+    useEffect(() => { setTitle("Review case"); }, []);    
+
 
   if (loading) return <Loader />;  
    if (error) return <TurnBack reason={turnbackError} onBack={()=> navigate('/provider/inbox')} />
     
   return (
-    <div className="min-h-screen bg-gray-50">   
-      
-      <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+    <div className="bg-gradient-to-b from-blue-50 to-blue-50">
+      <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
         <Card>
-                  <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <span className="text-3xl">{status.icon}</span>
-                    <div>
-                      <h2 className="text-xl font-bold text-gray-900">{status.label}</h2>
-                      <p className="text-sm text-gray-600">
-                        Submitted {new Date(consult.submitted_date).toLocaleString()}
-                      </p>
-                    </div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <span className="text-3xl">{status.icon}</span>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  {status.label}
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Submitted {new Date(consult.submitted_date).toLocaleString()}
+                </p>
+              </div>
+            </div>
+
+            <span className="text-xs text-gray-500">
+              <strong> ID: {extractSixDigits(consult.id)}</strong>
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              {
+                label: "Payment authorized",
+                done: consult.status !== "ISDRAFT",
+                date: consult.submitted_date,
+              },
+              { label: "Submitted", done: true, date: consult.submitted_date },
+              ...(consult.status === "DECLINED"
+                ? [
+                    {
+                      label: "Declined",
+                      done: true,
+                      date: consult.declined_date,
+                    },
+                  ]
+                : consult.status === "AUTO_DECLINED" ||
+                  consult.status === "TIMEDOUT"
+                ? [
+                    {
+                      label: "Timed out",
+                      done: true,
+                      date: consult.timed_out_date,
+                    },
+                  ]
+                : [
+                    {
+                      label: "Accepted by physician",
+                      done: ["ACCEPTED", "ANSWERED"].includes(consult.status),
+                      date: consult.accepted_date,
+                    },
+                    {
+                      label: "Report completed",
+                      done: ["ANSWERED"].includes(consult.status),
+                      date: consult.answered_date,
+                    },
+                  ]),
+            ].map((step, i) => (
+              <div key={i} className="flex justify-between items-center">
+                {/* Left side: status + icon */}
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                      step.done ? "bg-green-500" : "bg-gray-300"
+                    }`}
+                  >
+                    {step.done && (
+                      <svg
+                        className="w-4 h-4 text-white"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
                   </div>
-        
-                  <span className="text-xs text-gray-500">
-                   <strong> ID: {extractSixDigits(consult.id)}</strong>
+                  <span
+                    className={`text-sm ${
+                      step.done ? "text-gray-900 font-medium" : "text-gray-500"
+                    }`}
+                  >
+                    {step.label}
                   </span>
                 </div>
-        
-        
-                 <div className="space-y-3">
-                    {[
-                    { label: 'Payment authorized', done: consult.status !== 'ISDRAFT', date: consult.submitted_date },
-                    { label: 'Submitted', done: true, date: consult.submitted_date },
-                    ...(consult.status === 'DECLINED'
-                      ? [
-                          { label: 'Declined', done: true, date: consult.declined_date },
-                        ]
-                      : consult.status === 'AUTO_DECLINED' || consult.status === 'TIMEDOUT'
-                      ? [
-                          { label: 'Timed out', done: true, date: consult.timed_out_date },
-                        ]
-                      : [
-                          { label: 'Accepted by physician', done: ['ACCEPTED', 'ANSWERED'].includes(consult.status), date: consult.accepted_date },
-                          { label: 'Report completed', done: ['ANSWERED'].includes(consult.status), date: consult.answered_date },
-                        ]),
-                  ].map((step, i) => (
-                      <div key={i} className="flex justify-between items-center">
-                        {/* Left side: status + icon */}
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                              step.done ? 'bg-green-500' : 'bg-gray-300'
-                            }`}
-                          >
-                            {step.done && (
-                              <svg
-                                className="w-4 h-4 text-white"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            )}
-                          </div>
-                          <span
-                            className={`text-sm ${
-                              step.done ? 'text-gray-900 font-medium' : 'text-gray-500'
-                            }`}
-                          >
-                            {step.label}
-                          </span>
-                        </div>
 
-                        {/* Right side: date */}
-                        {step.date && (
-                          <span className="text-sm text-gray-500">
-                            <strong>{new Date(step.date).toLocaleString()}</strong>
-                          </span>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
-            </Card>
+                {/* Right side: date */}
+                {step.date && (
+                  <span className="text-sm text-gray-500">
+                    <strong>{new Date(step.date).toLocaleString()}</strong>
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </Card>
         <Card>
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Patient summary</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Patient summary
+          </h2>
           <div className="space-y-2 text-sm">
-            <p><strong>Name or Initials:</strong> {consult.legal_name} </p>
-            <p><strong>Date of birth:</strong> {getFormatedDate(consult.date_of_birth)}</p>
-            <p><strong>Age:</strong> {calculateAge(consult.date_of_birth)}</p>
-            <p><strong>State:</strong> {consult.state_at_service}</p>
-            <p><strong>Topic:</strong> {consult.topics.map(topic=> (topic.name + " ")) || 'General concern'}</p>
+            <p>
+              <strong>Name or Initials:</strong> {consult.legal_name}{" "}
+            </p>
+            <p>
+              <strong>Date of birth:</strong>{" "}
+              {getFormatedDate(consult.date_of_birth)}
+            </p>
+            <p>
+              <strong>Age:</strong> {calculateAge(consult.date_of_birth)}
+            </p>
+            <p>
+              <strong>State:</strong> {consult.state_at_service}
+            </p>
+            <p>
+              <strong>Topic:</strong>{" "}
+              {consult.topics.map((topic) => topic.name + " ") ||
+                "General concern"}
+            </p>
           </div>
         </Card>
 
         <Card>
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Question</h2>
-          
+
           <p className="text-gray-700 mb-4">{consult.question_body}</p>
 
           <div className="grid grid-cols-2 gap-4 mb-4">
             {consult.consult_specialty_symptoms.map((item, index) => (
-              <div key={index} className={`p-3 rounded-lg shadow-sm ${getSeverityColor( item.Value ?? 0 )}`}>
-                <p className="text-xs text-gray-600">{item.specialty_symptom.symptom.name}</p>
-                <p className="text-lg font-semibold text-gray-900">{item.Value ?? 0}/10</p>
+              <div
+                key={index}
+                className={`p-3 rounded-lg shadow-sm ${getSeverityColor(
+                  item.Value ?? 0
+                )}`}
+              >
+                <p className="text-xs text-gray-600">
+                  {item.specialty_symptom.symptom.name}
+                </p>
+                <p className="text-lg font-semibold text-gray-900">
+                  {item.Value ?? 0}/10
+                </p>
               </div>
             ))}
-          </div>          
+          </div>
           <div className="space-y-2 text-sm">
             {/* <p><strong>Medications:</strong> {consult.medications || 'None'}</p>
             <p><strong>Allergies:</strong> {consult.allergies || 'None'}</p> */}
             {Object.values(consult.medical_history).map((item, index) => (
-                  <span key={index} className="block">
-                    <strong>{item.fieldName}:</strong>{" "}
-                    {Array.isArray(item.value)
-                      ? item.value.join(", ")
-                      : item.value}
-                  </span>
-                ))}
+              <span key={index} className="block">
+                <strong>{item.fieldName}:</strong>{" "}
+                {Array.isArray(item.value) ? item.value.join(", ") : item.value}
+              </span>
+            ))}
           </div>
         </Card>
 
-        {(!isAccepted && !isAnswered && !isDeclined && !isTimedOut) && (
+        {!isAccepted && !isAnswered && !isDeclined && !isTimedOut && (
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setShowDeclineModal(true)} >
+            <Button variant="outline" onClick={() => setShowDeclineModal(true)}>
               Decline
             </Button>
             <Button fullWidth onClick={handleAccept} disabled={processing}>
-               {processing ? 'Processing…' : 'Accept & Capture Payment'}
+              {processing ? "Processing…" : "Accept & Capture Payment"}
             </Button>
           </div>
         )}
@@ -612,11 +670,13 @@ export const CaseReview: React.FC<CaseReviewProps> = ({
         {isAccepted && (
           <>
             <Card>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Compose answer</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Compose answer
+              </h2>
               <div className="space-y-4">
                 <Textarea
                   label="Overview"
-                  ref={overviewRef}
+                  ref={setOverviewRef}
                   placeholder="Brief summary of the patient's concern..."
                   value={overview}
                   onChange={(e) => setOverview(e.target.value)}
@@ -646,66 +706,105 @@ export const CaseReview: React.FC<CaseReviewProps> = ({
             </Card>
 
             <Card>
-              <h3 className="text-sm font-semibold text-gray-900 mb-3">Safety checklist</h3>
+              <h3 className="text-sm font-semibold text-gray-900 mb-3">
+                Safety checklist
+              </h3>
               <div className="space-y-2">
                 <Checkbox
                   label="Within scope & licensure"
                   checked={safetyChecks.withinScope}
-                  onChange={(e) => setSafetyChecks({ ...safetyChecks, withinScope: e.target.checked })}
+                  onChange={(e) =>
+                    setSafetyChecks({
+                      ...safetyChecks,
+                      withinScope: e.target.checked,
+                    })
+                  }
                 />
                 <Checkbox
                   label="Non-emergency confirmed"
                   checked={safetyChecks.nonEmergency}
-                  onChange={(e) => setSafetyChecks({ ...safetyChecks, nonEmergency: e.target.checked })}
+                  onChange={(e) =>
+                    setSafetyChecks({
+                      ...safetyChecks,
+                      nonEmergency: e.target.checked,
+                    })
+                  }
                 />
                 <Checkbox
                   label="Clear red-flag section included"
                   checked={safetyChecks.redFlagsIncluded}
-                  onChange={(e) => setSafetyChecks({ ...safetyChecks, redFlagsIncluded: e.target.checked })}
+                  onChange={(e) =>
+                    setSafetyChecks({
+                      ...safetyChecks,
+                      redFlagsIncluded: e.target.checked,
+                    })
+                  }
                 />
               </div>
             </Card>
             <div className="sticky flex gap-3 z-50 bottom-0 bg-white p-4 border-t">
-            <Button type="button" variant="secondary" className="whitespace-nowrap" onClick={handleSaveDraft}>
-                          <span className="hidden sm:inline">Save/Finish Later</span>
-                          <span className="inline sm:hidden">Save</span>
-            </Button>
-            <Button fullWidth onClick={handleSignandSend}>
-              Next
-            </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                className="whitespace-nowrap"
+                onClick={handleSaveDraft}
+              >
+                <span className="hidden sm:inline">Save/Finish Later</span>
+                <span className="inline sm:hidden">Save</span>
+              </Button>
+              <Button fullWidth onClick={handleSignandSend}>
+                Next
+              </Button>
             </div>
           </>
         )}
 
-        {isAnswered &&  (
+        {isAnswered && (
           <>
             <Card>
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Report</h2>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Report
+              </h2>
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Overview</h2>
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  Overview
+                </h2>
                 <p className="text-gray-700 mb-4">{report?.overview}</p>
-                </div>
-                <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Differential considerations (general)</h2>
-                <p className="text-gray-700 mb-4">{report?.differentials_general}</p>
-                </div>
-                <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">What's reasonable at home</h2>
-                <p className="text-gray-700 mb-4">{report?.self_care_general}</p>
-                </div>
-                <div className="space-y-4">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">When to seek in-person care</h2>
-                <p className="text-gray-700 mb-4">{report?.when_to_seek_care}</p>
+              </div>
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  Differential considerations (general)
+                </h2>
+                <p className="text-gray-700 mb-4">
+                  {report?.differentials_general}
+                </p>
+              </div>
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  What's reasonable at home
+                </h2>
+                <p className="text-gray-700 mb-4">
+                  {report?.self_care_general}
+                </p>
+              </div>
+              <div className="space-y-4">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                  When to seek in-person care
+                </h2>
+                <p className="text-gray-700 mb-4">
+                  {report?.when_to_seek_care}
+                </p>
               </div>
             </Card>
-            
           </>
         )}
 
         {showDeclineModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <Card className="max-w-md w-full">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Decline consult</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                Decline consult
+              </h3>
               <Textarea
                 label="Reason (internal)"
                 placeholder="Why are you declining this consult?"
@@ -713,49 +812,57 @@ export const CaseReview: React.FC<CaseReviewProps> = ({
                 onChange={(e) => setDeclineReason(e.target.value)}
               />
               <div className="flex gap-3 mt-4">
-                <Button variant="secondary" onClick={() => setShowDeclineModal(false)}>
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowDeclineModal(false)}
+                >
                   Cancel
                 </Button>
-                <Button variant="danger" fullWidth onClick={handleDecline} disabled={processing}>
-                  {processing ? 'Processing…' : 'Decline & Refund'}
+                <Button
+                  variant="danger"
+                  fullWidth
+                  onClick={handleDecline}
+                  disabled={processing}
+                >
+                  {processing ? "Processing…" : "Decline & Refund"}
                 </Button>
               </div>
             </Card>
           </div>
         )}
         {showPreview && (
-                    <Preview                       
-                       questionData={consultAnswer}
-                      onEdit={handleEditField}
-                      onContinue={handleSubmitAnswer}
-                    />
+          <Preview
+            questionData={consultAnswer}
+            onEdit={handleEditField}
+            onContinue={handleSubmitAnswer}
+          />
         )}
         {showSuccessModal && (
-           <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-4">
-          <div className="bg-white rounded-xl w-full max-w-sm p-6 text-center space-y-4 shadow-lg">
-            <h2 className="text-lg font-semibold text-gray-800">{modalMessage}</h2>
-            <div className="flex justify-center gap-4 mt-4">
-              <button
-                onClick={() => {
-                  if (modalError === "Draft Failed") {
-                    setShowSuccessModal(false);
-                    setModalMessage("");
-                  }else if(modalError === "Sign"){
-                    setShowSuccessModal(false);
-                    setModalMessage("");
-
-                  } else {
-                    onSubmitAnswer();
-                  }
-                }}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg w-24"
-              >
-                OK
-              </button>              
+          <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50 px-4">
+            <div className="bg-white rounded-xl w-full max-w-sm p-6 text-center space-y-4 shadow-lg">
+              <h2 className="text-lg font-semibold text-gray-800">
+                {modalMessage}
+              </h2>
+              <div className="flex justify-center gap-4 mt-4">
+                <button
+                  onClick={() => {
+                    if (modalError === "Draft Failed") {
+                      setShowSuccessModal(false);
+                      setModalMessage("");
+                    } else if (modalError === "Sign") {
+                      setShowSuccessModal(false);
+                      setModalMessage("");
+                    } else {
+                      onSubmitAnswer();
+                    }
+                  }}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg w-24"
+                >
+                  OK
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-          
         )}
       </div>
     </div>

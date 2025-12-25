@@ -222,8 +222,8 @@ export const PreCheck: React.FC<PreCheckProps> = ({ onPass, onFail }) => {
   };
 
   return (
-    <div className="bg-gray-50">
-      <div className="max-w-2xl mx-auto px-4 py-2">
+    <div className="bg-gradient-to-b from-blue-50 to-blue-50">
+      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         <Card>
           <p className="text-sm text-gray-600 mb-4">
             Takes &lt; 2 minutes. This helps us route safely.
