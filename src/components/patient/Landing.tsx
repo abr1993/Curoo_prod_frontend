@@ -10,6 +10,7 @@ import { Provider, ProviderLicense, ProviderSpecialty } from "@/types/provider";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { User } from "lucide-react";
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const CONSULT_REPLY_HOURS = import.meta.env.VITE_CONSULT_REPLY_HOURS;
 interface LandingProps {
   onStartConsult: (physicianId: string, provider_specialty_id: String) => void;
 }
@@ -152,7 +153,7 @@ const {token, userId} = useAuth();
                     : "No pricing available"}
                 </p>
                 <p className="text-sm text-gray-600">
-                  Typical reply today by 7pm
+                  Typical reply within {CONSULT_REPLY_HOURS} hours
                 </p>
               </div>
               <img
