@@ -22,6 +22,7 @@ interface PreCheckProps {
     reason: "coverage" | "redFlag" | "state" | "stateList" | "stateMismatch",
     data?: any
   ) => void;
+  onCancel: () =>void;
 }
 
 interface RedFlagData {
@@ -32,7 +33,7 @@ interface RedFlagData {
 const ALLOWED_STATES = [ "IN"];
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-export const PreCheck: React.FC<PreCheckProps> = ({ onPass, onFail }) => {
+export const PreCheck: React.FC<PreCheckProps> = ({ onPass, onFail, onCancel }) => {
   const [state, setState] = useState("");
   const [dob, setDob] = useState("");
   const [coverageAttested, setCoverageAttested] = useState(false);
@@ -276,7 +277,7 @@ export const PreCheck: React.FC<PreCheckProps> = ({ onPass, onFail }) => {
             </div>
 
             <div className="flex gap-3">
-              <Button type="button" variant="secondary">
+              <Button onClick={onCancel} type="button" variant="secondary">
                 Cancel
               </Button>
               <Button type="submit" fullWidth>

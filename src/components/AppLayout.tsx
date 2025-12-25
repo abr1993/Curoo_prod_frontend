@@ -120,6 +120,9 @@ console.log("JWT in localStorage on startup:", localStorage.getItem("token"));
     setTurnbackReason(reason);
     navigate("/turnback", { state: { providerData: data}});
   };
+  const handleCancelPrecheck = ()=>{
+     navigate("/");
+  }
 
   const handleQuestionSubmit = (providerId: string, providerSpecialtyId: string, preCheckData:PreCheckData, data: QuestionDataNew) => {
     // setQuestionData(data);
@@ -191,7 +194,7 @@ console.log("JWT in localStorage on startup:", localStorage.getItem("token"));
         <Route path="/provider/:providerId/:providerSpecialtyId" element={<StartConsult onStartConsult={handleStartConsult}  />} />
         <Route
           path="/precheck/:providerId/:providerSpecialtyId"
-          element={<PreCheck onPass={handlePreCheckPass} onFail={handlePreCheckFail} />}
+          element={<PreCheck onPass={handlePreCheckPass} onFail={handlePreCheckFail} onCancel={handleCancelPrecheck} />}
         />
         <Route path="/turnback" 
         element={<TurnBack reason={turnbackReason} 
