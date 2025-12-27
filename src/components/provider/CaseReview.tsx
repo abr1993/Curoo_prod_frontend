@@ -13,6 +13,7 @@ import Loader from '../shared/Loader';
 import { AnswerData, ConsultDetail, ReportBody} from '@/types/consult';
 import { TurnBack } from '../patient/TurnBack';
 import { Preview } from './Preview';
+import { extractSixDigits, formatDateTime, getSeverityColor } from '@/utils/helpers';
 
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 interface CaseReviewProps {   
@@ -442,14 +443,7 @@ const setOverviewRef = useCallback((node: HTMLTextAreaElement | null) => {
 
    const status = consult?.status ? statusConfig[consult.status] : statusConfig.SUBMITTED;
 
-  //Helper to get color based on numeric value 
-  const getSeverityColor = (value: number): string => { 
-    if (value <= 0) return 'bg-gray-100 text-gray-700'; 
-    if (value <= 3) return 'bg-green-100 text-green-800'; 
-    if (value <= 6) return 'bg-yellow-100 text-yellow-800'; 
-    if (value <= 8) return 'bg-orange-100 text-orange-800'; 
-    return 'bg-red-100 text-red-700'; 
-  };
+  
 
   const getFormatedDate = (dateOfBirth: string | Date): string =>{
     const birthDate = new Date(dateOfBirth);
@@ -477,17 +471,7 @@ const setOverviewRef = useCallback((node: HTMLTextAreaElement | null) => {
     return age;
   }
 
-  const extractSixDigits = (input: string): string =>{
-      // Extract all digits from the string
-      const digits = input.replace(/\D/g, '');
-
-      // Take only the first 6 digits
-      const firstSix = digits.slice(0, 6);
-
-      // If fewer than 6 digits, pad with zeros at the end
-      return firstSix.padEnd(6, '0');
-    }
-
+  
   const { setTitle } = useHeader();
     useEffect(() => { setTitle("Review case"); }, []);    
 
@@ -506,9 +490,9 @@ const setOverviewRef = useCallback((node: HTMLTextAreaElement | null) => {
                 <h2 className="text-xl font-bold text-gray-900">
                   {status.label}
                 </h2>
-                <p className="text-sm text-gray-600">
+                {/* <p className="text-sm text-gray-600">
                   Submitted {new Date(consult.submitted_date).toLocaleString()}
-                </p>
+                </p> */}
               </div>
             </div>
 
@@ -544,7 +528,7 @@ const setOverviewRef = useCallback((node: HTMLTextAreaElement | null) => {
                   ]
                 : [
                     {
-                      label: "Accepted by physician",
+                      label: "Accepted",
                       done: ["ACCEPTED", "ANSWERED"].includes(consult.status),
                       date: consult.accepted_date,
                     },
@@ -555,9 +539,9 @@ const setOverviewRef = useCallback((node: HTMLTextAreaElement | null) => {
                     },
                   ]),
             ].map((step, i) => (
-              <div key={i} className="flex justify-between items-center">
+              <div key={i} className="grid grid-cols-[55%_45%] gap-3 text-left items-start">
                 {/* Left side: status + icon */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-start gap-3">
                   <div
                     className={`w-6 h-6 rounded-full flex items-center justify-center ${
                       step.done ? "bg-green-500" : "bg-gray-300"
@@ -588,8 +572,8 @@ const setOverviewRef = useCallback((node: HTMLTextAreaElement | null) => {
 
                 {/* Right side: date */}
                 {step.date && (
-                  <span className="text-sm text-gray-500">
-                    <strong>{new Date(step.date).toLocaleString()}</strong>
+                  <span className="text-xs text-gray-600 text-left break-words md:text-right">
+                    <strong>{formatDateTime(new Date(step.date))}</strong>
                   </span>
                 )}
               </div>

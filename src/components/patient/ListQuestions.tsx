@@ -6,6 +6,7 @@ import { useHeader } from "@/contexts/HeaderContext";
 import { useAuth } from "@/hooks/useAuth";
 import { ConsultDetail, PreCheckData, QuestionDataNew } from "@/types/consult";
 import { useSearchParams } from "react-router-dom";
+import { extractSixDigits, formatDateTime, getConsultDate } from "@/utils/helpers";
 
 
 interface MyQuestionsProps {
@@ -14,14 +15,14 @@ interface MyQuestionsProps {
   onSelectConsult: (consult: ConsultDetail, destination: string, preCheckData?: PreCheckData, questionData?: QuestionDataNew) => void;
 }
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const tabs = ["all", "pending", "declined", "timed-out", "completed", "draft"] as const;
+const tabs = ["all", "pending", "completed", "accepted", "declined", "timed-out", "draft"] as const;
 export const MyQuestions: React.FC<MyQuestionsProps> = ({
   onSelectConsult,
   onViewStatus,
  
 }) => {
   const [filter, setFilter] = useState<
-    "all" | "pending" | "declined" | "timed-out" | "completed" | "draft"
+    "all" | "pending" | "completed" | "accepted" | "declined" | "timed-out" |  "draft"
   >("all");
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get("tab") || "all";
@@ -31,28 +32,6 @@ export const MyQuestions: React.FC<MyQuestionsProps> = ({
   };
 
   console.log(currentTab);
-  // Filter logic
-  /*  const filteredConsults = (consults || []).filter((c) => {
-    if (filter === "all") return true;
-    if (filter === "declined") return c.status === "declined";
-    if (filter === "completed")
-      return (
-        c.status === "answered" ||
-        c.status === "completed" ||
-        c.status === "accepted"
-      );
-    return c.status === filter;
-  });  */
-  const extractSixDigits = (input: string): string =>{
-  // Extract all digits from the string
-  const digits = input.replace(/\D/g, '');
-
-  // Take only the first 6 digits
-  const firstSix = digits.slice(0, 6);
-
-  // If fewer than 6 digits, pad with zeros at the end
-  return firstSix.padEnd(6, '0');
-}
 
   const [consultdetails, setConsultDetailss] = useState<ConsultDetail[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -109,24 +88,13 @@ const filteredConsultDetails = (consultdetails || []).filter((c) => {
         return ["TIMEDOUT", "AUTO_DECLINED"].includes(c.status);
       case "completed":
         return ["ANSWERED", "completed"].includes(c.status);
+      case "accepted":
+        return ["ACCEPTED", "completed"].includes(c.status);
       default:
         return true;
     }
   });
-  const getConsultDate = (consult: ConsultDetail): string => {
-    switch (consult.status) {
-      case 'ANSWERED':
-        return consult.answered_date;
-      case 'DECLINED':
-        return consult.declined_date;
-      case 'AUTO_DECLINED':
-      case 'TIMEDOUT':
-        return consult.timed_out_date;
-      default:
-        return consult.submitted_date;
-    }
-  }
-
+  
   // Color logic
   const getStatusColor = (status: string): string => {
     switch (status) {
@@ -309,7 +277,7 @@ const filteredConsultDetails = (consultdetails || []).filter((c) => {
               >
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h3 className="font-semibold text-gray-900">
+                    <h3 className="font-semibold text-gray-900 mb-3">
                       Topic:{" "}
                       <span>
                         {consult.topics.map((topic) => topic.name + " ")}
@@ -319,11 +287,7 @@ const filteredConsultDetails = (consultdetails || []).filter((c) => {
                       State: {consult.state_at_service}
                     </p>
                   </div>
-                  <span className="text-xs text-gray-500">
-                    {new Date(
-                      getConsultDate(consult) || ""
-                    ).toLocaleTimeString()}
-                  </span>
+                  
                 </div>
 
                 <p className="text-sm text-gray-700 mb-3 line-clamp-2">
@@ -341,7 +305,12 @@ const filteredConsultDetails = (consultdetails || []).filter((c) => {
                       : consult.status.toUpperCase()}
                   </span>
                   <span className="text-xs text-gray-500">
-                    ID: {extractSixDigits(consult.id)}
+                    <strong>{formatDateTime(new Date(
+                      getConsultDate(consult) || ""
+                    )) }</strong>
+                  </span>
+                  <span className="text-xs text-gray-500">
+                   <strong>ID: {extractSixDigits(consult.id)}</strong> 
                   </span>
                 </div>
 

@@ -5,6 +5,7 @@ import { Chip } from '../ui/Chip';
 import { useHeader } from '@/contexts/HeaderContext';
 import Loader from '../shared/Loader';
 import { ConsultDetail } from '@/types/consult';
+import { extractSixDigits, formatDateTime, getConsultDate, getSeverityColor } from '@/utils/helpers';
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 interface ProviderInboxProps {  
   onSelectConsult: (consultId: String) => void;
@@ -68,29 +69,8 @@ export const ProviderInbox: React.FC<ProviderInboxProps> = ({
       fetchConsults();
     }, []);
   console.log("fetched consults", consults);
-
-  //Helper to get color based on numeric value 
-  const getSeverityColor = (value: number, type: string): string => { 
-    if (value <= 0) return 'bg-gray-200 text-gray-700'; 
-    if (value <= 3) return 'bg-green-100 text-green-700'; 
-    if (value <= 6) return 'bg-yellow-100 text-yellow-700'; 
-    if (value <= 10) return 'bg-orange-100 text-orange-700'; 
-    return 'bg-red-100 text-red-700'; 
-  };
-  const getConsultDate = (consult: ConsultDetail): string => {
-  switch (consult.status) {
-    case 'ANSWERED':
-      return consult.answered_date;
-    case 'DECLINED':
-      return consult.declined_date;
-    case 'AUTO_DECLINED':
-    case 'TIMEDOUT':
-      return consult.timed_out_date;
-    default:
-      return consult.submitted_date;
-  }
-}
-
+  
+  
   const getStatusColor = (status: string): string => {
     switch (status) {
       case "ISDRAFT":
@@ -107,17 +87,9 @@ export const ProviderInbox: React.FC<ProviderInboxProps> = ({
       default:
         return "bg-gray-100 text-gray-700";
     }
-  };
-  const extractSixDigits = (input: string): string =>{
-  // Extract all digits from the string
-    const digits = input.replace(/\D/g, '');
+  }; 
 
-    // Take only the first 6 digits
-    const firstSix = digits.slice(0, 6);
-
-    // If fewer than 6 digits, pad with zeros at the end
-    return firstSix.padEnd(6, '0');
-  }
+  
   const { setTitle } = useHeader();
       useEffect(() => { setTitle("Inbox"); }, []);
 
@@ -160,25 +132,42 @@ export const ProviderInbox: React.FC<ProviderInboxProps> = ({
               >
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <p className="font-semibold text-gray-900">
-                      {consult.topics.map((item) => item.name + " ")}
-                    </p>
+                    <h3 className="font-semibold text-gray-900 mb-3">
+                      Topic:{" "}
+                      <span>
+                        {consult.topics.map((topic) => topic.name + " ")}
+                      </span>
+                    </h3>
                     <p className="text-sm text-gray-600">
-                      {consult.state_at_service}
+                      State: {consult.state_at_service}
                     </p>
-                  </div>
-                  <span className="text-xs text-gray-500">
-                    {new Date(
-                      getConsultDate(consult) || ""
-                    ).toLocaleString()}
-                  </span>
+                  </div>                 
+                  
                 </div>
 
                 <p className="text-sm text-gray-700 mb-3 line-clamp-2">
                   {consult.question_body}
                 </p>
+                <div className="grid grid-cols-2 gap-2 mb-3 sm:flex sm:flex-wrap">
+                  {consult.consult_specialty_symptoms.map((item, index) => (
+                    <div
+                      key={index}
+                      className={`flex justify-between items-center px-2 py-1 rounded-md text-xs font-medium ${getSeverityColor(
+                                item.Value                                
+                              )}`} >
+                      <span className="truncate">
+                        {item.specialty_symptom.symptom.name}
+                      </span>
+                      <span className="ml-2">
+                        {item.Value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
 
-                <div className="flex flex-wrap gap-2 mb-3">
+
+
+                {/* <div className="flex flex-wrap gap-2 mb-3">
                   {consult.consult_specialty_symptoms.map((item, index) => (
                     <span
                       key={index}
@@ -190,7 +179,7 @@ export const ProviderInbox: React.FC<ProviderInboxProps> = ({
                       {item.specialty_symptom.symptom.name}: {item.Value}
                     </span>
                   ))}
-                </div>
+                </div> */}
                 <div className="flex justify-between items-center">
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(
@@ -199,8 +188,13 @@ export const ProviderInbox: React.FC<ProviderInboxProps> = ({
                   >
                     <strong>{consult.status.toUpperCase()}</strong>
                   </span>
+                 <span className="text-xs text-gray-500">
+                    <strong>{formatDateTime(new Date(
+                      getConsultDate(consult) || ""
+                    )) }</strong>
+                  </span>
                   <span className="text-xs text-gray-500">
-                    ID: {extractSixDigits(consult.id)}
+                   <strong>ID: {extractSixDigits(consult.id)}</strong> 
                   </span>
                 </div>
                 {/* {Object.values(consult.medical_history?.data || {}).map((item, index) => (

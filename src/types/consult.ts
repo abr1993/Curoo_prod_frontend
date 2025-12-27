@@ -56,6 +56,7 @@ export interface ConsultDetail {
   patient_id: string;
   provider_id: string;
   provider_specialty_id: string;
+  provider_name?:string;
   state_at_service: string;
   coverage_is_attested: boolean;
   has_red_flag: boolean;

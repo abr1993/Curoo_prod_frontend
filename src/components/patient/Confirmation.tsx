@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Header } from '../shared/Header';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { useHeader } from '@/contexts/HeaderContext';
 import { useParams } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import Loader from '../shared/Loader';
 
 
 interface ConfirmationProps {
@@ -15,12 +17,45 @@ interface ConfirmationProps {
 export const Confirmation: React.FC<ConfirmationProps> = ({ onViewStatus, onClose }) => {
   const expectedTime = new Date();
   const CONSULT_REPLY_HOURS = import.meta.env.VITE_CONSULT_REPLY_HOURS;
+  const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   expectedTime.setHours(19, 0, 0);
-
+  const {token} = useAuth();
+  const [loading, setLoading] = useState(true);
   const { consultId } = useParams<{ consultId: string }>();
+  const [consultProvider, setConsultProvider] = useState<string>("");
+  useEffect(()=> {
+    const fetchConsults = async () => {
+      try {
+        setLoading(true);        
+
+        const token = localStorage.getItem("token"); // assuming JWT stored here
+        const res = await fetch(`${VITE_API_BASE_URL}/api/consult/${consultId}/provider`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch consults (${res.status})`);
+        }
+
+        const data = await res.json();
+        setConsultProvider(data);
+      } catch (err: any) {
+        console.error("Error fetching provider for consult:", err);
+        
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchConsults();
+  }, []);
 
   const { setTitle } = useHeader();
   useEffect(() => { setTitle("Submitted"); }, []);
+
+  if (loading) return <Loader />;
 
   return (
     <div className="bg-gradient-to-b from-blue-50 to-blue-50">
@@ -56,12 +91,12 @@ export const Confirmation: React.FC<ConfirmationProps> = ({ onViewStatus, onClos
               <strong>What happens next:</strong>
             </p>
             <ul className="text-sm text-blue-800 space-y-1">
-              <li>• Your payment is on hold (not charged yet)</li>
-              <li>• The doctor will review your question</li>
+              <li>• Your payment is on hold (not charged yet).</li>
+              <li>• {consultProvider} will review your question.</li>
               <li>
-                • If accepted, you'll be charged and receive a detailed report
+                • If accepted, you'll be charged and receive a detailed report.
               </li>
-              <li>• If declined, you'll receive an automatic refund</li>
+              <li>• If declined, you'll receive an automatic refund.</li>
             </ul>
           </div>
 
