@@ -2,6 +2,7 @@ export interface Provider {
   avatar: string | null;
   user_id: string;
   display_name: string;
+  professional_bio: string;
   price_cents: string;
   is_available: boolean;
   specialty: string;
@@ -16,6 +17,7 @@ export interface ProviderSpecialty {
   avatar: string | null;
   user_id: string;
   display_name: string;
+  professional_bio: string;
   price_cents: string[];
   is_available: boolean;
   provider_experience_in_years: number;

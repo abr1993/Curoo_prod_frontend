@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useHeader } from "@/contexts/HeaderContext";
@@ -26,6 +26,27 @@ const { title, description, titleLink } = useHeader();
     setMenuOpen(false);
   };
 
+  const menuRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
+        setMenuOpen(false)
+      }
+    }
+
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [menuOpen])
+
   const renderButtons = () => {
     if (!token) {
       return (
@@ -35,6 +56,9 @@ const { title, description, titleLink } = useHeader();
             className="text-gray-700 hover:text-blue-600 font-medium"
           >
             Home
+          </button>
+          <button onClick={() => handleNav("/aboutus")} className="text-gray-700 hover:text-blue-600 font-medium">
+            About Us
           </button>
           <button
             onClick={() => handleNav("/verify/account")}
@@ -55,6 +79,9 @@ const { title, description, titleLink } = useHeader();
           <button onClick={() => handleNav("/myconsults")} className="text-gray-700 hover:text-blue-600 font-medium">
             My Consults
           </button>
+          <button onClick={() => handleNav("/aboutus")} className="text-gray-700 hover:text-blue-600 font-medium">
+            About Us
+          </button>
           <button onClick={handleLogout} className="text-red-600 hover:text-red-800 font-medium">
             Sign Out
           </button>
@@ -73,6 +100,9 @@ const { title, description, titleLink } = useHeader();
           </button>
           <button onClick={() => handleNav("/provider/settings")} className="text-gray-700 hover:text-blue-600 font-medium">
             Settings
+          </button>
+          <button onClick={() => handleNav("/aboutus")} className="text-gray-700 hover:text-blue-600 font-medium">
+            About Us
           </button>
           <button onClick={handleLogout} className="text-red-600 hover:text-red-800 font-medium">
             Sign Out
@@ -122,7 +152,7 @@ const { title, description, titleLink } = useHeader();
         <nav className="hidden md:flex gap-4">{renderButtons()}</nav>
 
         {/* Mobile Menu */}
-        <div className="md:hidden relative">
+        <div ref={menuRef} className="md:hidden relative">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="p-2 hover:bg-gray-100 rounded-lg"

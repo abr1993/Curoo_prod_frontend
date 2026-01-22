@@ -1,6 +1,7 @@
 import { PreCheckData, QuestionDataNew } from "@/types/consult";
 import { Card } from "../ui/Card";
 import { Textarea } from "../ui/Textarea";
+import { PRONOUNS } from "@/utils/constants";
 
 interface PreviewModalProps {
   preCheckData: PreCheckData;
@@ -65,7 +66,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
               </p>
               <p>
                 <strong>Pronouns:</strong>{" "}
-                {questionData.pronouns}
+                {PRONOUNS.find(p => p.value === questionData.pronouns)?.label || 'Not specified'}                
               </p>
               <p>
                 <strong>Sex at birth:</strong>{" "}

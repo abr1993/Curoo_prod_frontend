@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Specialty, SpecialtySetting } from "@/types/specialty";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { User } from "lucide-react";
+import { Textarea } from "../ui/Textarea";
 //import { Avatar } from "@radix-ui/react-avatar";
 
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -24,6 +25,7 @@ export const ProviderSettings: React.FC<ProviderSettingsProps> = ({
 const [photo, setPhoto] = useState<string | File | null>(null);
 const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 const [name, setName] = useState("");
+const [bio, setBio] = useState("");
 const [experienceInYears, setExperienceInYears] = useState(0);
 const [allSpecialties, setAllSpecialties] = useState<Specialty[]>([]);
 const [specialties, setSpecialties] = useState<SpecialtySetting[]>([]);
@@ -53,6 +55,7 @@ useEffect(() => {
       setName(data.displayName);
       setPhoto(data.avatar);
       setUnavailable(data.unavailable);
+      setBio(data.professional_bio);
       //setExperienceInYears(data.)
       // 2️⃣ Set provider specialties
       setSpecialties(data.specialties || []);
@@ -243,6 +246,7 @@ const handleSave = async () => {
 
     const payload = {
       displayName: name.trim(),
+      professional_bio: bio.trim(),
       avatar: avatarPath || null,
       unavailable,
       specialties,
@@ -284,32 +288,17 @@ const handleconsolelog = () =>{
               <Avatar className="w-28 h-28">
                 <AvatarImage
                   src={ 
-                       (typeof photo === "string" && photo)
-                         ? photo
-                          : photoPreview || ""
-                   }
+      			(typeof photo === "string" && photo)
+        		? photo
+       			: photoPreview || ""
+  			}
                   alt="Profile"
                 />
                 <AvatarFallback className="flex items-center justify-center h-full bg-gray-200">
                   <User className="w-8 h-8 text-gray-500" />
                 </AvatarFallback>
               </Avatar>
-              {/* {photo ? (
-                <img
-                  
-                  src={
-                        typeof photo === "string"
-                          ? photo
-                          : photoPreview || ""
-                      }
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />                
-              ) : (
-                <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-                  No photo
-                </div>
-              )} */}
+              
             </div>
             <div className="flex flex-col gap-2">
               <input
@@ -340,6 +329,17 @@ const handleconsolelog = () =>{
               onChange={(e) => setName(e.target.value)}
               placeholder="Enter full name"
             />
+          </div>
+        </Card>
+        <Card>
+          <div className="">
+             <Textarea
+                label="Professional Bio"
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="Write a brief professional summary highlighting your experience, specialties, and approach to care."
+                helperText="This bio may be visible to patients. Keep it concise and professional."
+              />
           </div>
         </Card>
 

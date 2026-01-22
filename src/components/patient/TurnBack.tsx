@@ -8,9 +8,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 interface TurnBackProps {
   reason: 'coverage' | 'redFlag' | 'state' | 'stripe' | 'dbfetch' | 'dbupdate' | 'stateList' | 'accessDenied';
   onBack: () => void;
+  onFindUrgentCare?: ()=> void;
 }
 const allowedStates = ["IN"];
-export const TurnBack: React.FC<TurnBackProps> = ({ reason, onBack }) => {
+export const TurnBack: React.FC<TurnBackProps> = ({ reason, onBack, onFindUrgentCare }) => {
 
   const sortedStates = [...allowedStates].sort(); // make a copy and sort alphabetically
   const formattedStates =
@@ -91,7 +92,7 @@ export const TurnBack: React.FC<TurnBackProps> = ({ reason, onBack }) => {
       title: "Please be seen today",
       message:
         "Your answers suggest symptoms that are best evaluated in person. For urgent issues, call 911. For same-day care, visit an urgent care or emergency room.",
-      cta: "Find urgent care",
+      cta: "Go back",
     },    
     stripe: {
       title: 'Transaction Failed',
@@ -194,9 +195,18 @@ export const TurnBack: React.FC<TurnBackProps> = ({ reason, onBack }) => {
               </div>
             )}
 
-            <Button fullWidth onClick={onBack}>
-              {cta}
-            </Button>
+            <div className="flex gap-3">
+              <Button fullWidth onClick={onBack}>
+                 {cta}
+                </Button>
+                {reason === "redFlag" && (
+                   <Button fullWidth onClick={onFindUrgentCare} >
+                    Find Urgent Care
+                  </Button>
+                )}
+                
+              </div>
+           
           </div>
         </Card>
       </div>

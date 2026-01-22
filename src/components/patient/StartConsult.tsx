@@ -9,7 +9,8 @@ import Loader from "../shared/Loader";
 import { Provider, ProviderLicense } from "@/types/provider";
 import { Condition } from "@/types/specialty";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { User } from "lucide-react";
+import { CheckCircle, User } from "lucide-react";
+import { TagCards } from "../ui/TagCards";
 
 interface StartConsultProps {
   onStartConsult: (providerId: string, providerSpecialtyId: string ) => void;
@@ -25,6 +26,7 @@ export const StartConsult: React.FC<StartConsultProps> = ({
   const [provider, setProvider] = useState<Provider | null>(null);
   const [conditions, setConditions] = useState<Condition[]>([]);
   const [loading, setLoading] = useState(true);
+   const [expandedBio, setExpandedBio] = useState(false);
   const { setTitle } = useHeader();
   
 const location = useLocation();
@@ -61,7 +63,12 @@ const location = useLocation();
         const res = await fetch(`${VITE_API_BASE_URL}/api/specialty/${providerSpecialtyId}/conditions`);
         const data: Condition[] = await res.json();
         //console.log(providers)
-        setConditions(data);
+        const sortedConditions = [...data].sort((a, b) => {
+          const aWords = a.name.trim().length;
+          const bWords = b.name.trim().length;
+          return bWords - aWords;
+        });
+        setConditions(sortedConditions);
       } catch (err) {
         console.error("Failed to fetch providers:", err);
       } finally {
@@ -85,7 +92,14 @@ const location = useLocation();
       <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
         <Card>
           <div className="flex items-start gap-4 mb-6">
-            
+            {/* {(provider.avatar!==null)?          
+              <img
+                  src={ `${VITE_API_BASE_URL}/${provider.avatar}`}
+                  alt={provider.display_name}
+                  className="w-20 h-20 rounded-full object-cover"
+                /> :
+                 
+                /*  */}
             <Avatar className="w-20 h-20">
               <AvatarImage
                 src={provider.avatar}
@@ -112,10 +126,43 @@ const location = useLocation();
                   {provider.provider_experience_in_years} year(s) of Experience
                 </div>
               </div>
-              {/* <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
-                Licensed in {provider.licenses.map((l) => l.state).join(", ")}
-              </div> */}
+              
+              
             </div>
+          </div>
+          <div
+            className="
+                    mt-3
+                    px-4
+                    sm:px-6
+                    lg:px-10
+                    max-w-full
+                  "
+          >
+            <h4 className="text-sm font-semibold text-gray-900 mb-1">About</h4>
+            <p
+              className={`
+                          text-sm text-gray-700
+                          w-full
+                          overflow-hidden
+                          ${
+                            expandedBio
+                              ? "whitespace-normal"
+                              : "line-clamp-2 sm:line-clamp-1"
+                          }
+                        `}
+            >
+              {provider.professional_bio}
+            </p>
+
+            {provider.professional_bio.length > 120 && (
+              <button
+                onClick={() => setExpandedBio(!expandedBio)}
+                className="mt-1 text-xs text-blue-600 hover:underline"
+              >
+                {expandedBio ? "Show less" : "Read more"}
+              </button>
+            )}
           </div>
 
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
@@ -135,11 +182,12 @@ const location = useLocation();
                   Typical reply within {CONSULT_REPLY_HOURS} hours
                 </p>
               </div>
-              <img
-                src={IMAGES.securityBadge}
-                alt="HIPAA Compliant"
-                className="w-12 h-12"
-              />
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-6 h-6 text-blue-600" />
+                <span className="text-sm font-semibold text-blue-600">
+                  Board-Certified
+                </span>
+              </div>
             </div>
           </div>
         </Card>
@@ -148,10 +196,11 @@ const location = useLocation();
           <h2 className="text-lg font-semibold text-gray-900 mb-3">
             Common conditions
           </h2>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {conditions.slice(0, 6).map((topic, index) => (
-              <Chip key={index} label={topic.name} />
+          <div className="mb-4 flex flex-wrap gap-2">
+            {conditions.slice(0, 8).map((topic, index) => (
+              <TagCards key={index} label={topic.name} className="flex-auto sm:flex-none" />
             ))}
+            
           </div>
         </Card>
 
@@ -164,7 +213,7 @@ const location = useLocation();
               {
                 icon: "📝",
                 title: "Ask your question",
-                desc: "Share your symptoms securely",
+                desc: "Share your questions securely",
               },
               {
                 icon: "💳",

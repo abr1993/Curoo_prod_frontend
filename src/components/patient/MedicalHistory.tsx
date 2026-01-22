@@ -5,6 +5,7 @@ import { Checkbox } from "../ui/Checkbox";
 import { Upload } from "lucide-react";
 import { HistoryField, Topic } from "@/types/consult";
 import { Textarea } from "../ui/Textarea";
+import { TagCards } from "../ui/TagCards";
  
 interface Props {
   providerSpecialtyId: string;
@@ -47,7 +48,12 @@ export default function MedicalHistorySection({ providerSpecialtyId, onChange, o
         const res = await fetch(`${VITE_API_BASE_URL}/api/specialty/${providerSpecialtyId}/conditions`);
         const data: Topic[] = await res.json();
         //console.log(providers)
-        setTopics(data);
+        const sortedTopics = [...data].sort((a, b) => {
+          const aWords = a.name.trim().length;
+          const bWords = b.name.trim().length;
+          return bWords - aWords;
+        });
+        setTopics(sortedTopics);
       } catch (err) {
         console.error("Failed to fetch topics:", err);
       } finally {
@@ -153,20 +159,31 @@ useEffect(() => {
 
   return (
     
-    <div className="bg-white rounded-xl shadow-sm p-5 mt-8">
+    <div className="bg-white rounded-xl shadow-sm mt-8">
         <div>
                   <label className="block text-lg font-medium text-gray-700 mb-2">Topic</label>
-                  <div className="flex flex-wrap gap-2">
-                    {topics.map((t, index) => (
-                      <Chip
-                        key={index}
-                        label={t.name}
-                        //selected={(formData[field.field_name] || []).includes(t.id)}
-                        selected={selectedTopics.some((st) => st.id === t.id)}
-                        onClick={() => toggleTopic(t)}
-                      />
-                    ))}
-                  </div>
+            <div className="flex flex-wrap gap-2">
+  {topics.map((t) => (
+    <TagCards
+      key={t.id}
+      label={t.name}
+      selected={selectedTopics.some((st) => st.id === t.id)}
+      onClick={() => toggleTopic(t)}
+      className="flex-auto sm:flex-none"
+    />
+  ))}
+</div>
+
+
+
+
+
+
+
+
+
+
+
                   {/* Conditional upload section */}
                     {showPhotoUpload && (
                         <div className="mt-6 border border-gray-200 rounded-lg p-4 bg-gray-50">
@@ -199,7 +216,7 @@ useEffect(() => {
                         </div>
                       )}
                 </div>
-                <div className="bg-white rounded-xl shadow-sm p-5 mt-8">
+                <div className="bg-white rounded-xl shadow-sm mt-8">
       <h6 className="text-lg font-semibold mb-4">Medical History</h6>
 
       <div className="space-y-6">

@@ -214,8 +214,7 @@ export const StatusView: React.FC<StatusViewProps> = ({ onViewReport }) => {
                       date: consult.declined_date,
                     },
                   ]
-                : consult.status === "AUTO_DECLINED" ||
-                  consult.status === "TIMEDOUT"
+                : consult.status === "AUTO_DECLINED" || consult.status === "TIMEDOUT"
                 ? [
                     {
                       label: "Timed out",
@@ -239,27 +238,28 @@ export const StatusView: React.FC<StatusViewProps> = ({ onViewReport }) => {
               <div key={i} className="grid grid-cols-[55%_45%] gap-3 text-left items-start">
                 {/* Left side: status + icon */}
                 <div className="flex items-start gap-3">
+                  {/* ICON CONTAINER: flex-shrink-0 prevents squishing */}
                   <div
-                    className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                      step.done ? "bg-green-500" : "bg-gray-300"
+                    className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center transition-colors ${
+                      step.done ? "bg-green-500" : "bg-gray-200"
                     }`}
                   >
-                    {step.done && (
-                      <svg
-                        className="w-4 h-4 text-white"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                    )}
+                    {/* SVG: Always rendered, color changes based on status */}
+                    <svg
+                      className={`w-4 h-4 ${step.done ? "text-white" : "text-gray-400"}`}
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
                   </div>
+                  
                   <span
-                    className={`text-sm ${
+                    className={`text-sm leading-6 ${
                       step.done ? "text-gray-900 font-medium" : "text-gray-500"
                     }`}
                   >
@@ -269,7 +269,7 @@ export const StatusView: React.FC<StatusViewProps> = ({ onViewReport }) => {
 
                 {/* Right side: date */}
                 {step.date && (
-                  <span className="text-xs text-gray-600 text-left break-words md:text-right">
+                  <span className="text-xs text-gray-600 text-left break-words md:text-right leading-6">
                     <strong>{formatDateTime(new Date(step.date))}</strong>
                   </span>
                 )}

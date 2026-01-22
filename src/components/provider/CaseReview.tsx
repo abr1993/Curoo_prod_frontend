@@ -60,6 +60,8 @@ export const CaseReview: React.FC<CaseReviewProps> = ({
   
    const [error, setError] = useState<string | null>(null);
    const[modalError, setModalError] = useState<string | null>(null);
+   const [declineError, setDeclineError] = useState<string>("");
+
    const [turnbackError, setTurnbackError] = useState<'dbfetch' | 'accessDenied'>('dbfetch');
    const [isAccepted, setIsAccepted] = useState(false);
    const [isAnswered, setIsAnswered] = useState(false);
@@ -237,17 +239,19 @@ const setOverviewRef = useCallback((node: HTMLTextAreaElement | null) => {
       }
   };
 
-  async function declineConsult(consultId: String) {
+  async function declineConsult(consultId: String, reason: String) {
       //const token = localStorage.getItem("token");
       if (!token) throw new Error("Missing authorized token");
+      const declineReason = { reason: reason}
 
       try {
             const response = await fetch(`${VITE_API_BASE_URL}/api/consults/${consultId}/decline`, {
             method: "POST",
             headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,            
+            },
+            body: JSON.stringify(declineReason),
             
           });
 
@@ -268,26 +272,29 @@ const setOverviewRef = useCallback((node: HTMLTextAreaElement | null) => {
         throw error;
       }
   }
-  const handleDecline = async () => {
-    
-    /* if (declineReason.trim()) {
-      
-      
-    }else{
-      setError("Please type a reason");
-    } */
-   setProcessing(true);
-    try{
-        await declineConsult(consult.id);        
-        onDecline(consult.id, declineReason);
-        setShowDeclineModal(false);
-      }catch(error){
-          setError("Database Update Failed");
-          
-          setProcessing(false);
+  const handleDecline = async () => {      
+
+    // Ensure declineReason is always a string
+    const validatedReason = declineReason?.trim() || "";    
+
+      if (!validatedReason) {
+        setDeclineError("Please enter a reason for declining this consult.");
+        return;
       }
-    setProcessing(false);
-  };
+      setProcessing(true);
+      setDeclineError("");
+      console.log("reason: ", validatedReason)
+      try {
+       await declineConsult(consult.id, validatedReason);
+        onDecline(consult.id, validatedReason);
+        setShowDeclineModal(false);
+      } catch (error) {
+        setError("Database Update Failed");
+      } finally {
+        setProcessing(false);
+      }
+    };
+
 
   const saveDraft = async (): Promise<any> => {
       const draftAnswer: AnswerData = {
@@ -543,13 +550,15 @@ const setOverviewRef = useCallback((node: HTMLTextAreaElement | null) => {
                 {/* Left side: status + icon */}
                 <div className="flex items-start gap-3">
                   <div
-                    className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                      step.done ? "bg-green-500" : "bg-gray-300"
-                    }`}
-                  >
-                    {step.done && (
+                      className={`w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center transition-colors ${
+                        step.done ? "bg-green-500" : "bg-gray-200"
+                      }`}
+                    >
+                      {/* SVG is always rendered now */}
                       <svg
-                        className="w-4 h-4 text-white"
+                        className={`w-4 h-4 transition-colors ${
+                          step.done ? "text-white" : "text-gray-400"
+                        }`}
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -559,8 +568,7 @@ const setOverviewRef = useCallback((node: HTMLTextAreaElement | null) => {
                           clipRule="evenodd"
                         />
                       </svg>
-                    )}
-                  </div>
+                    </div>
                   <span
                     className={`text-sm ${
                       step.done ? "text-gray-900 font-medium" : "text-gray-500"
@@ -793,8 +801,19 @@ const setOverviewRef = useCallback((node: HTMLTextAreaElement | null) => {
                 label="Reason (internal)"
                 placeholder="Why are you declining this consult?"
                 value={declineReason}
-                onChange={(e) => setDeclineReason(e.target.value)}
+                onChange={(e) => {
+                  setDeclineReason(e.target.value);
+                  if (declineError) setDeclineError("");
+                }}
+                //onChange={(e) => setDeclineReason(e.target.value)}
+                helperText='Note: The reason you provide will be sent to the email address of the patient'
               />
+              {declineError && (
+                <p className="mt-1 text-sm text-red-600">
+                  {declineError}
+                </p>
+              )}
+
               <div className="flex gap-3 mt-4">
                 <Button
                   variant="secondary"

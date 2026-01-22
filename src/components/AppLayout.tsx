@@ -29,6 +29,7 @@ import { Contact } from "lucide-react";
 import { ContactUs } from "./shared/Contact";
 import { TermsConditions } from "./shared/TermsCondition";
 import { PrivacyPolicy } from "./shared/PrivacyPolicy";
+import { AboutUs } from "./shared/AboutUs";
 
 export default function AppLayout() {
   return (
@@ -161,6 +162,21 @@ console.log("JWT in localStorage on startup:", localStorage.getItem("token"));
 
   const handleViewStatus = (consultId: String) => navigate(`/status/${consultId}`);
   const handleViewReport = ()=> {};
+  const handleFindUrgentCare = () => {
+    if (typeof window === "undefined") return;
+
+    const ua = navigator.userAgent;
+
+    const isIOS = /iPhone|iPad|iPod/.test(ua);
+    const isAndroid = /Android/.test(ua);
+
+    const url = isIOS
+    ? "https://maps.apple.com/?q=urgent+care"
+    : "https://www.google.com/maps/search/?api=1&query=urgent+care";
+
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
 
   const handleAcceptConsult = (consultId: string) => {
     
@@ -198,6 +214,7 @@ console.log("JWT in localStorage on startup:", localStorage.getItem("token"));
         />
         <Route path="/turnback" 
         element={<TurnBack reason={turnbackReason} 
+        onFindUrgentCare={handleFindUrgentCare}
         onBack={() => {
         if (window.history.state && window.history.state.idx > 0) {
           navigate(-1); // go back if there's history
@@ -280,6 +297,10 @@ console.log("JWT in localStorage on startup:", localStorage.getItem("token"));
         <Route
           path="/privacy"
           element={ <PrivacyPolicy />}
+        />
+        <Route
+          path="/aboutus"
+          element={ <AboutUs />}
         />
       </Routes>
           </main>

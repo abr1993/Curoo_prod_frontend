@@ -8,7 +8,7 @@ import Loader from "../shared/Loader";
 import { useAuth } from "@/hooks/useAuth";
 import { Provider, ProviderLicense, ProviderSpecialty } from "@/types/provider";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { User } from "lucide-react";
+import { CheckCircle, User } from "lucide-react";
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const CONSULT_REPLY_HOURS = import.meta.env.VITE_CONSULT_REPLY_HOURS;
 interface LandingProps {
@@ -23,6 +23,8 @@ export const Landing: React.FC<LandingProps> = ({
   const [providers, setProviders] = useState<ProviderSpecialty[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [expandedBio, setExpandedBio] = useState<Record<string, boolean>>({});
+
   
   console.log(VITE_API_BASE_URL);
 const {token, userId} = useAuth();
@@ -132,12 +134,51 @@ const {token, userId} = useAuth();
                   <div className="flex items-center justify-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm whitespace-nowrap">
                     {provider.provider_experience_in_years} year(s) of Experience
                   </div>
-                </div>
-
-
-
-
+                </div>          
+                  
               </div>
+            </div>
+            {/* Bio */}
+            <div
+              className="
+                        mt-3
+                        px-4
+                        sm:px-6
+                        lg:px-10
+                        max-w-full
+                      "
+            >
+              <h4 className="text-sm font-semibold text-gray-900 mb-1">
+                About
+              </h4>
+              <p
+                className={`
+                          text-sm text-gray-700
+                          w-full
+                          overflow-hidden
+                          ${
+                            expandedBio[provider.user_id]
+                              ? "whitespace-normal"
+                              : "line-clamp-2 sm:line-clamp-1"
+                          }
+                        `}
+              >
+                {provider.professional_bio}
+              </p>
+
+              {provider.professional_bio.length > 120 && (
+                <button
+                  onClick={() =>
+                    setExpandedBio((prev) => ({
+                      ...prev,
+                      [provider.user_id]: !prev[provider.user_id],
+                    }))
+                  }
+                  className="mt-1 text-xs text-blue-600 hover:underline"
+                >
+                  {expandedBio[provider.user_id] ? "Show less" : "Read more"}
+                </button>
+              )}
             </div>
 
             <div className="bg-gray-50 rounded-lg p-4 mb-6 flex items-center justify-between">
@@ -156,11 +197,12 @@ const {token, userId} = useAuth();
                   Typical reply within {CONSULT_REPLY_HOURS} hours
                 </p>
               </div>
-              <img
-                src={IMAGES.securityBadge}
-                alt="HIPAA Compliant"
-                className="w-12 h-12"
-              />
+              <div className="flex items-center gap-2">
+                <CheckCircle className="w-6 h-6 text-blue-600" />
+                <span className="text-sm font-semibold text-blue-600">
+                  Board-Certified
+                </span>
+              </div>
             </div>
 
             <div className="flex justify-end">
