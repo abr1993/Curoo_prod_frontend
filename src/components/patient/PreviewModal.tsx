@@ -70,7 +70,7 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({
               </p>
               <p>
                 <strong>Sex at birth:</strong>{" "}
-                {questionData.sexatbirth}
+                {questionData.sexatbirth || 'Not specified'}
               </p>
               <p>
                 <strong>State:</strong> {preCheckData.state}

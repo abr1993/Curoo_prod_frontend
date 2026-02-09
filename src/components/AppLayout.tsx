@@ -30,6 +30,8 @@ import { ContactUs } from "./shared/Contact";
 import { TermsConditions } from "./shared/TermsCondition";
 import { PrivacyPolicy } from "./shared/PrivacyPolicy";
 import { AboutUs } from "./shared/AboutUs";
+import { HIPAANoticeOfPrivacyPractices } from "./shared/HIPAANoticeOfPrivacyPractices";
+import { TelemedicineAsynchronousCareConsent } from "./shared/TelemedicineAsynchronousCareConsent";
 
 export default function AppLayout() {
   return (
@@ -301,6 +303,14 @@ console.log("JWT in localStorage on startup:", localStorage.getItem("token"));
         <Route
           path="/aboutus"
           element={ <AboutUs />}
+        />
+        <Route
+          path="/telemedicine"
+          element={ <TelemedicineAsynchronousCareConsent />}
+        />
+        <Route
+          path="/hippanotice"
+          element={ <HIPAANoticeOfPrivacyPractices />}
         />
       </Routes>
           </main>

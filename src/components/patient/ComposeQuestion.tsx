@@ -57,11 +57,11 @@ export const ComposeQuestion: React.FC<ComposeQuestionProps> = ({
   const [legalName, setLegalName] = useState(questionData.legalName);
   const [showFullName, setShowFullName] = useState(questionData.showFullName);
   const [pronouns, setPronouns] = useState<string>(
-  questionData.pronouns ? questionData.pronouns.toString() : ""
-);
-const [sexatbirth, setSexAtBirth] = useState<string>(
-  questionData.sexatbirth ? questionData.sexatbirth.toString() : ""
-);
+    questionData.pronouns ? questionData.pronouns.toString() : ""
+  );
+  const [sexatbirth, setSexAtBirth] = useState<string>(
+    questionData.sexatbirth ? questionData.sexatbirth.toString() : ""
+  );
   
   const [showDetails, setShowDetails] = useState(true);
   
@@ -74,6 +74,7 @@ const [sexatbirth, setSexAtBirth] = useState<string>(
   //const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>(questionData?.topics || []);
   const [showPreview, setShowPreview] = useState(false);
+  const [medicationError, setMedicationError] = useState(false);
 
   //const [symptomValues, setSymptomValues] = useState<{ specialty_symptom_id: string; symptom_name: string }[]>([]);
   //const [values, setValues] = useState<Record<string, number>>({});
@@ -197,6 +198,49 @@ console.log("Patient DOB:", preCheckData.dob);
     });
   };
 
+  const handleNoMedicationsChange = (val: boolean) => {
+    setNoMedications(val);
+    //setMedicationError(false); // clear error if checkbox checked
+  };
+
+  const handleMedicalHistoryChange = (fields) => {
+    setMedicalHistory(fields);
+
+    const medsField = fields.find(f => f.name === "Medications");
+    const hasValue = medsField?.value?.trim().length > 0;
+
+    // ONLY clear the error if the user has actually provided a value or checked the box
+    if (hasValue || noMedications) {
+      setMedicationError(false);
+    }
+  };
+
+  useEffect(() => {
+    // If user provides a value OR checks the "No medications" box, hide the error
+    if (noMedications || formData["Medications"]?.trim()) {
+      setMedicationError(false);
+    }
+  }, [noMedications, formData["Medications"]]);
+  
+
+  const normalizeValue = (fieldName: string, value: string) => {
+    //if (!FIELDS_WITH_NONE_DEFAULT.has(fieldName)) return value;
+    // 1. Handle Array-based fields (MULTISELECT)
+    if (Array.isArray(value)) {
+      // If the array is empty, return ["None"]
+      if (value.length === 0) {
+        return ["None"];
+      }
+      return value;
+    }
+
+    if (typeof value === "string" && value.trim() === "") {
+      return "None";
+    }
+
+    return value;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     console.log(medicalHistory);
     console.log("SYMPTOMS", values);
@@ -220,6 +264,36 @@ console.log("Patient DOB:", preCheckData.dob);
         return;
       }
 
+      const medsField = medicalHistory.find(field => field.name === "Medications");
+
+        // 2. Safely get the value and trim it
+        const medsValue = medsField?.value?.trim();
+
+        // 3. Validation Logic
+       if (!noMedications && !medsValue) {
+          setMedicationError(true);
+
+          // We use setTimeout(0) to push the scroll to the end of the execution queue.
+          // This ensures the error message is actually rendered before we scroll to it.
+          setTimeout(() => {
+            const errorEl = document.getElementById("medication-error-zone");
+            if (errorEl) {
+              errorEl.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center', // 'center' is usually best, but 'nearest' works if center fails
+                inline: 'nearest' 
+              });
+            }
+          }, 10);
+
+          return;
+        }
+
+      // If validation passes, reset error
+      setMedicationError(false);
+
+      //setMedicationError(false);
+
    // if (!question.trim()) newErrors.question = 'Please describe your concern';
     /* if (!medications.trim() && !noMedications) {
       newErrors.medications = 'Please list medications or check "no daily medications"';
@@ -242,7 +316,7 @@ console.log("Patient DOB:", preCheckData.dob);
       historyFields: medicalHistory.map((h) => ({
         historyFieldId: h.id,
         fieldName: h.name,
-        value: h.value,
+        value: normalizeValue(h.name, h.value),
       })),
       topics: selectedTopics,
       showNameOptions: showFullName?  "FULL_NAME" : "INITIALS_ONLY",
@@ -376,7 +450,7 @@ console.log("Patient DOB:", preCheckData.dob);
               historyFields: medicalHistory.map((h) => ({
                                 historyFieldId: h.id,
                                 fieldName: h.name,
-                                value: h.value,
+                                value: normalizeValue(h.name, h.value),
                               })),
               symptoms:  Object.entries(values).map(([id, value]) => ({
                           specialtySymptomId: id,
@@ -498,12 +572,13 @@ console.log("Patient DOB:", preCheckData.dob);
 
                 <MedicalHistorySection
                   providerSpecialtyId={providerSpecialtyId}
-                  onChange={setMedicalHistory}
-                  onNoMedicationsChange={(val) => setNoMedications(val)}
+                  onChange={handleMedicalHistoryChange}
+                  onNoMedicationsChange={handleNoMedicationsChange}
                   onTopicsChange={setSelectedTopics}
                   initialHistoryFields={questionData.historyFields}
                   initialNoMedications={questionData.noMedications}
                   initialTopics={questionData.topics}
+                  medicationError={medicationError}
                 />
               </div>
             )}

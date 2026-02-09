@@ -15,9 +15,10 @@ interface Props {
   initialHistoryFields?: { historyFieldId: string; fieldName: string; value: any }[];
   initialNoMedications?: boolean;
   initialTopics?: Topic[];
+  medicationError: boolean;
 }
 const VITE_API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-export default function MedicalHistorySection({ providerSpecialtyId, onChange, onNoMedicationsChange, onTopicsChange, initialTopics, initialHistoryFields=[], initialNoMedications=false }: Props) {
+export default function MedicalHistorySection({ providerSpecialtyId, onChange, onNoMedicationsChange, onTopicsChange, medicationError, initialTopics, initialHistoryFields=[], initialNoMedications=false }: Props) {
   const [fields, setFields] = useState<HistoryField[]>([]);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [noMedications, setNoMedications] = useState(initialNoMedications);
@@ -80,18 +81,17 @@ export default function MedicalHistorySection({ providerSpecialtyId, onChange, o
   }));
 
   onChange?.(formatted);
-}, [formData, fields, onChange]);
+}, [formData, fields]);
 
 useEffect(() => {
-  if (initialHistoryFields?.length) {
-    // Pre-fill formData or checkboxes based on saved values
-    const initialFormData: Record<string, any> = {};
-    initialHistoryFields.forEach(field => {
-      initialFormData[field.fieldName] = field.value;
-    });
-    setFormData(initialFormData);
-  }
-}, [initialHistoryFields]);
+    if (initialHistoryFields.length > 0 && Object.keys(formData).length === 0) {
+      const initialMap: Record<string, any> = {};
+      initialHistoryFields.forEach(f => {
+        initialMap[f.fieldName] = f.value;
+      });
+      setFormData(initialMap);
+    }
+  }, [initialHistoryFields, fields]);
 
  useEffect(() => {
   onTopicsChange(selectedTopics);
@@ -100,6 +100,16 @@ useEffect(() => {
 
   const handleTextChange = (fieldName: string, value: string) => {
     setFormData(prev => ({ ...prev, [fieldName]: value }));
+  };
+
+  const handleCheckboxChange = (checked: boolean) => {
+    setNoMedications(checked);
+    onNoMedicationsChange?.(checked);
+    
+    if (checked) {
+      // Clear the text value for Medications when checkbox is checked
+      setFormData(prev => ({ ...prev, Medications: "" }));
+    }
   };
 
   const toggleOption = (fieldName: string, optionValue: string) => {
@@ -163,28 +173,17 @@ useEffect(() => {
         <div>
                   <label className="block text-lg font-medium text-gray-700 mb-2">Topic</label>
             <div className="flex flex-wrap gap-2">
-  {topics.map((t) => (
-    <TagCards
-      key={t.id}
-      label={t.name}
-      selected={selectedTopics.some((st) => st.id === t.id)}
-      onClick={() => toggleTopic(t)}
-      className="flex-auto sm:flex-none"
-    />
-  ))}
-</div>
-
-
-
-
-
-
-
-
-
-
-
-                  {/* Conditional upload section */}
+                {topics.map((t) => (
+                  <TagCards
+                    key={t.id}
+                    label={t.name}
+                    selected={selectedTopics.some((st) => st.id === t.id)}
+                    onClick={() => toggleTopic(t)}
+                    className="flex-auto sm:flex-none"
+                  />
+                ))}
+              </div>
+              {/* Conditional upload section */}
                     {showPhotoUpload && (
                         <div className="mt-6 border border-gray-200 rounded-lg p-4 bg-gray-50">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -221,24 +220,31 @@ useEffect(() => {
 
       <div className="space-y-6">
         {hasMedicationsField && (
-          <div className="pt-2">
-            <Checkbox
-              label="I take no daily medications"
-              checked={noMedications}
-              onChange={e => setNoMedications(e.target.checked)}
-            />
-          </div>
-        )}
+            <div id="medication-error-zone" className="pt-2">
+              <Checkbox
+                label="I take no daily medications"
+                checked={noMedications}
+                onChange={e => handleCheckboxChange(e.target.checked)}
+              />
+              {/* DISPLAY ERROR HERE INSTEAD OF PARENT IF POSSIBLE */}
+              {medicationError && !noMedications && !formData["Medications"]?.trim() && (
+                <p className="text-sm text-red-600 mt-1" >
+                  Please check this box or enter your medications.
+                </p>
+              )}
+            </div>
+          )}
         {fields.map(field => (
           <div key={field.history_field_id}>           
 
             {field.field_type === "TEXT" && (
               <Input
               label={field.field_name}
-                className="w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500"                
+                className={`w-full border border-gray-300 rounded-md p-2 focus:ring-blue-500 focus:border-blue-500 ${field.field_name === "Medications" && medicationError && !noMedications ? "border-red-500" : ""}` }               
                 value={formData[field.field_name] || ""}
                 disabled={field.field_name === "Medications" && noMedications}
-                onChange={e => handleTextChange(field.field_name, e.target.value)}
+                onChange={e => handleTextChange(field.field_name, e.target.value)}             
+                  
               />
             )}
             {field.field_type === "TEXTAREA" && (

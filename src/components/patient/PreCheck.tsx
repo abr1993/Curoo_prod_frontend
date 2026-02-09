@@ -37,6 +37,7 @@ export const PreCheck: React.FC<PreCheckProps> = ({ onPass, onFail, onCancel }) 
   const [state, setState] = useState("");
   const [dob, setDob] = useState("");
   const [coverageAttested, setCoverageAttested] = useState(false);
+  const [selfPay, setSelfPay] = useState(false);
   const [selectedRedFlags, setSelectedRedFlags] = useState<string[]>([]);
   const [redFlags, setRedFlags] = useState<RedFlagData[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -55,6 +56,7 @@ export const PreCheck: React.FC<PreCheckProps> = ({ onPass, onFail, onCancel }) 
   const stateRef = useRef<HTMLDivElement | null>(null);
   const dobRef = useRef<HTMLDivElement | null>(null);
   const coverageRef = useRef<HTMLDivElement | null>(null);
+  const selfPayRef = useRef<HTMLDivElement | null>(null);
 
   // 🔹 Fetch red flags
   const fetchRedflags = async () => {
@@ -160,6 +162,10 @@ export const PreCheck: React.FC<PreCheckProps> = ({ onPass, onFail, onCancel }) 
       onFail("coverage");
       return;
     }
+    if (!selfPay) {
+      onFail("coverage");
+      return;
+    }
     const licensedStates = provider?.licenses?.map((l: any) => l.state);
     if (!licensedStates.includes(state) && !ALLOWED_STATES.includes(state)) {
       onFail("stateList", {
@@ -251,12 +257,20 @@ export const PreCheck: React.FC<PreCheckProps> = ({ onPass, onFail, onCancel }) 
               />
             </div>
 
-            <div ref={coverageRef}>
+            <div ref={coverageRef} className="flex items-start">
               <Checkbox
                 label="I am not enrolled in Medicare (including Medicare Advantage) or Medicaid."
                 checked={coverageAttested}
                 onChange={(e) => setCoverageAttested(e.target.checked)}
                 error={errors.coverage}
+              />
+            </div>
+            <div ref={selfPayRef} className="flex items-start">
+              <Checkbox
+                label="I am choosing self-pay, I will pay in full for this consultation, I understand no claim will be submitted to any health plan, and I request that this consultation not be disclosed to my health plan for payment or health care operations."
+                checked={selfPay}
+                onChange={(e) => setSelfPay(e.target.checked)}
+                error={errors.selfPay}
               />
             </div>
 

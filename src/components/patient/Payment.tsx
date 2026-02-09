@@ -6,7 +6,7 @@ import { Checkbox } from '../ui/Checkbox';
 import { mockPhysician } from '../../utils/mockData';
 import { PaymentSection } from '../patient/PaymentSection';
 import { useHeader } from '@/contexts/HeaderContext';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useBackHandler } from '@/contexts/BackHandlerContext';
 import { useAuth } from '@/hooks/useAuth';
 import { TurnBack } from './TurnBack';
@@ -266,10 +266,24 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
             </p>
           </div>
 
-          <Checkbox
-            label="I understand this is non-emergency, asynchronous medical care. Care occurs where I am located. No prescriptions will be provided via this service."
+          <Checkbox            
             checked={consentChecked}
             onChange={(e) => setConsentChecked(e.target.checked)}
+            label={
+              <>
+              I agree to the{" "}
+               <Link
+                  to="/telemedicine"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-blue-600 underline hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  Telemedicine & Asynchronous Care Consent
+                </Link>{" "}
+                and confirm I am in Indiana, 18 or older, and understand this is not for emergencies.
+              </>
+            } 
           />
           {consentChecked && (
             <div className="mt-6 mb-20">
