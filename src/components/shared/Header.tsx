@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useHeader } from "@/contexts/HeaderContext";
 
@@ -10,7 +10,7 @@ interface HeaderProps {
   titleLink?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onBack }) => {
+export const Header: React.FC<HeaderProps> = ({  onBack }) => {
   const { token, role, logout } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -29,45 +29,38 @@ export const Header: React.FC<HeaderProps> = ({ onBack }) => {
 
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  // Paths where we don't want to show the header back button
-  const excludedBackPaths = [
-    "/aboutus",
-    "/about-us",
-    "/privacy",
-    "/privacy-policy",
-    "/privacypolicy",
-    "/hipaa",
-    "/hippanotice",
-    "/notice-of-privacy-practices",
-    "/telemedicine",
-    "/asynchronous",
-    "/terms",
-    "/terms-of-service",
-    "/terms-of-use",
-    "/contact",
-    "/contactus",
-    "/contact-us",
+  const excludedBackPaths = [    
+    "/privacy",    
+    "/hippanotice",    
+    "/telemedicine",    
+    "/terms",    
   ];
 
   const shouldShowBack =
-    Boolean(onBack) &&
-    !excludedBackPaths.some((p) => location.pathname.startsWith(p));
+   // Boolean(onBack) &&
+    !excludedBackPaths.some((p) =>
+        matchPath({ path: `${p}/*`, end: false }, location.pathname)
+      );
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
+        setMenuOpen(false)
       }
-    };
+    }
 
     if (menuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside)
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [menuOpen]);
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [menuOpen])
 
   const renderButtons = () => {
     if (!token) {
@@ -79,13 +72,9 @@ export const Header: React.FC<HeaderProps> = ({ onBack }) => {
           >
             Home
           </button>
-          <button
-            onClick={() => handleNav("/aboutus")}
-            className="text-gray-700 hover:text-blue-600 font-medium"
-          >
+          <button onClick={() => handleNav("/aboutus")} className="text-gray-700 hover:text-blue-600 font-medium">
             About Us
           </button>
-
           <button
             onClick={() => handleNav("/verify/account")}
             className="text-gray-700 hover:text-blue-600 font-medium"
@@ -99,28 +88,16 @@ export const Header: React.FC<HeaderProps> = ({ onBack }) => {
     if (role === "PATIENT") {
       return (
         <>
-          <button
-            onClick={() => handleNav("/")}
-            className="text-gray-700 hover:text-blue-600 font-medium"
-          >
+          <button onClick={() => handleNav("/")} className="text-gray-700 hover:text-blue-600 font-medium">
             Home
           </button>
-          <button
-            onClick={() => handleNav("/myconsults")}
-            className="text-gray-700 hover:text-blue-600 font-medium"
-          >
+          <button onClick={() => handleNav("/myconsults")} className="text-gray-700 hover:text-blue-600 font-medium">
             My Consults
           </button>
-          <button
-            onClick={() => handleNav("/aboutus")}
-            className="text-gray-700 hover:text-blue-600 font-medium"
-          >
+          <button onClick={() => handleNav("/aboutus")} className="text-gray-700 hover:text-blue-600 font-medium">
             About Us
           </button>
-          <button
-            onClick={handleLogout}
-            className="text-red-600 hover:text-red-800 font-medium"
-          >
+          <button onClick={handleLogout} className="text-red-600 hover:text-red-800 font-medium">
             Sign Out
           </button>
         </>
@@ -130,34 +107,19 @@ export const Header: React.FC<HeaderProps> = ({ onBack }) => {
     if (role === "PROVIDER") {
       return (
         <>
-          <button
-            onClick={() => handleNav("/")}
-            className="text-gray-700 hover:text-blue-600 font-medium"
-          >
+          <button onClick={() => handleNav("/")} className="text-gray-700 hover:text-blue-600 font-medium">
             Home
           </button>
-          <button
-            onClick={() => handleNav("/provider/inbox")}
-            className="text-gray-700 hover:text-blue-600 font-medium"
-          >
+          <button onClick={() => handleNav("/provider/inbox")} className="text-gray-700 hover:text-blue-600 font-medium">
             Inbox
           </button>
-          <button
-            onClick={() => handleNav("/provider/settings")}
-            className="text-gray-700 hover:text-blue-600 font-medium"
-          >
+          <button onClick={() => handleNav("/provider/settings")} className="text-gray-700 hover:text-blue-600 font-medium">
             Settings
           </button>
-          <button
-            onClick={() => handleNav("/aboutus")}
-            className="text-gray-700 hover:text-blue-600 font-medium"
-          >
+          <button onClick={() => handleNav("/aboutus")} className="text-gray-700 hover:text-blue-600 font-medium">
             About Us
           </button>
-          <button
-            onClick={handleLogout}
-            className="text-red-600 hover:text-red-800 font-medium"
-          >
+          <button onClick={handleLogout} className="text-red-600 hover:text-red-800 font-medium">
             Sign Out
           </button>
         </>
@@ -167,41 +129,31 @@ export const Header: React.FC<HeaderProps> = ({ onBack }) => {
     return null;
   };
 
-  return (
+  return ( shouldShowBack &&  
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-4">
       <div className="max-w-2xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-3">
-          {shouldShowBack && (
+          {onBack && shouldShowBack && (
             <button
               onClick={onBack}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               aria-label="Go back"
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             </button>
           )}
           <div>
             <h1 className="text-xl font-semibold text-gray-900">
-              {titleLink ? (
-                <Link to={titleLink} className="block ">
-                  {title}
-                </Link>
-              ) : (
-                title
-              )}
-            </h1>
+                {titleLink ? (
+                  <Link to={titleLink} className="block ">
+                    {title}
+                  </Link>
+                ) : (
+                  title
+                )}
+              </h1>
 
             {description && (
               <p className="inline-flex items-center px-3 py-1 mt-1 text-sm bg-blue-100 font-semibold text-blue-800 rounded-full">
@@ -212,9 +164,7 @@ export const Header: React.FC<HeaderProps> = ({ onBack }) => {
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center whitespace-nowrap gap-4">
-          {renderButtons()}
-        </nav>
+        <nav className="hidden md:flex items-center whitespace-nowrap gap-4">{renderButtons()}</nav>
 
         {/* Mobile Menu */}
         <div ref={menuRef} className="md:hidden relative">
@@ -229,12 +179,7 @@ export const Header: React.FC<HeaderProps> = ({ onBack }) => {
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16M4 18h16"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
           {menuOpen && (
