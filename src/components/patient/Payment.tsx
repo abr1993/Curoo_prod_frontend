@@ -10,7 +10,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useBackHandler } from '@/contexts/BackHandlerContext';
 import { useAuth } from '@/hooks/useAuth';
 import { TurnBack } from './TurnBack';
-import { Loader } from 'lucide-react';
+import Loader from "../shared/Loader";
 import { ConsultInput, QuestionDataNew } from '@/types/consult';
 
 interface PaymentProps {

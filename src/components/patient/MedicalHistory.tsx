@@ -104,12 +104,8 @@ useEffect(() => {
 
   const handleCheckboxChange = (checked: boolean) => {
     setNoMedications(checked);
-    onNoMedicationsChange?.(checked);
+    onNoMedicationsChange?.(checked);   
     
-    if (checked) {
-      // Clear the text value for Medications when checkbox is checked
-      setFormData(prev => ({ ...prev, Medications: "" }));
-    }
   };
 
   const toggleOption = (fieldName: string, optionValue: string) => {
@@ -155,9 +151,10 @@ useEffect(() => {
     };
   // Automatically clear medications field when “noMedications” is checked
     useEffect(() => {
-        if (noMedications) {
-        setFormData(prev => ({ ...prev, Medications: "No Medications" }));
-        }
+        setFormData(prev => ({
+            ...prev,
+            Medications: noMedications ? "No Medications" : ""
+          }));
     }, [noMedications]);
 
     useEffect(() => {
