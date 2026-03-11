@@ -26,7 +26,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
   const [loading, setLoading] = useState(false);
   const {token, userId} = useAuth();
 
-  // ✅ Get the client secret from your backend
+  // Get the client secret from your backend
   useEffect(() => {
     const createPaymentIntent = async () => {
       try {
@@ -49,10 +49,10 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to create payment intent");
-        console.log("CLIENTSECRET:::", data);
+        
         setClientSecret(data.clientSecret);
       } catch (err: any) {
-        console.error("create-payment-intent failed", err);
+        
         onFail(err.message || "Unable to initialize payment");
       } finally {
         setLoading(false);
@@ -111,8 +111,7 @@ const PaymentForm: React.FC<PaymentSectionProps> = ({
       redirect: "if_required",
       confirmParams: {},
     });
-    console.log("payment intent status:", paymentIntent);
-    console.log("payment intent error:", error);
+    
     if (error) {
       const msg = error.message ?? "Payment failed.";
       setErrorMessage(msg);

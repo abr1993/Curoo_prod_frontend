@@ -71,20 +71,11 @@ export const ComposeQuestion: React.FC<ComposeQuestionProps> = ({
   const { providerId } = useParams<{ providerId: string }>();
   const { providerSpecialtyId } = useParams<{ providerSpecialtyId: string }>();
   const [symptoms, setSymptoms] = useState<Symptom[]>([]);
-  //const [selectedTopics, setSelectedTopics] = useState<Topic[]>([]);
+  
   const [selectedTopics, setSelectedTopics] = useState<Topic[]>(questionData?.topics || []);
   const [showPreview, setShowPreview] = useState(false);
   const [medicationError, setMedicationError] = useState(false);
-
-  //const [symptomValues, setSymptomValues] = useState<{ specialty_symptom_id: string; symptom_name: string }[]>([]);
-  //const [values, setValues] = useState<Record<string, number>>({});
-  /* const [values, setValues] = useState(() => {
-        const initial: Record<string, number> = {};
-        questionData.symptoms?.forEach((s) => {
-          initial[s.specialtySymptomId] = s.value;
-        });
-        return initial; 
-    }); */
+  
   const [values, setValues] = useState<Record<string, number>>({});
   useEffect(() => {
       if (questionData?.symptoms) {
@@ -98,17 +89,7 @@ export const ComposeQuestion: React.FC<ComposeQuestionProps> = ({
     
   const [medicalHistory, setMedicalHistory] = useState<{ id: string; name: string; value: any }[]>([]);
   const location = useLocation();
-  const navigate = useNavigate();
-  console.log("Draftquestion data consult id inside compose: ", questionData);
-  //const preCheckData = location.state?.preCheckData;
-  // You can now access any field from preCheckData
-  if(preCheckData ){
-console.log("Patient DOB:", preCheckData.dob);
-  console.log("Patient state:", preCheckData.state);
-  console.log("Coverage attested?", preCheckData.coverageAttested);
-  }
-  console.log("Selected pronouns:", pronouns);
-  console.log("Selected Topics:", selectedTopics);  
+  const navigate = useNavigate();     
 
   // Fetch symptoms dynamically
   useEffect(() => {
@@ -134,38 +115,15 @@ console.log("Patient DOB:", preCheckData.dob);
     fetchSymptoms();    
 
   }, [draftQuestionData, providerSpecialtyId]);
-  const loadedquestiondata = location.state?.questionData;
-  //console.log
+  const loadedquestiondata = location.state?.questionData;  
   useEffect(() => {    
     
     if(loadedquestiondata){
-    //console.log("Draft questionData:", loadedquestiondata);
+    
     setQuestionData(loadedquestiondata)
     setDraftQuestionData(loadedquestiondata);
-/* setValues(()=>{
-        const initial: Record<string, number> = {};
-        loadedquestiondata.symptoms?.forEach((s:any) => {
-          initial[s.specialtySymptomId] = s.value;
-        });
-        return initial; 
-    }) */
-        // Populate form fields
-        /* setQuestion(draftQuestionData.question);
-        
-        //setSelectedTopics(draftQuestionData.topic ? [draftQuestionData.topic] : []);
-        //setSymptoms(draftQuestionData.symptoms);
-        
-        setNoMedications(draftQuestionData.noMedications);
-        
-        setLegalName(draftQuestionData.legalName);
-        setShowFullName(draftQuestionData.showFullName);
-        //setValues(draftQuestionData.symptoms);
 
-        // Keep the state in sync
-        setQuestionData(draftQuestionData); */
-       // localStorage.setItem("draftQuestionData", JSON.stringify(draftQuestionData));
-      }
-      //console.log("Draft questionData:", draftQuestionData);
+      }      
 
   }, [loadedquestiondata]);
 
@@ -224,7 +182,7 @@ console.log("Patient DOB:", preCheckData.dob);
   
 
   const normalizeValue = (fieldName: string, value: string) => {
-    //if (!FIELDS_WITH_NONE_DEFAULT.has(fieldName)) return value;
+    
     // 1. Handle Array-based fields (MULTISELECT)
     if (Array.isArray(value)) {
       // If the array is empty, return ["None"]
@@ -242,9 +200,7 @@ console.log("Patient DOB:", preCheckData.dob);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    console.log(medicalHistory);
-    console.log("SYMPTOMS", values);
-    console.log("showFullName", showFullName);
+    
     e.preventDefault();
     const newErrors: Record<string, string> = {};
     if (!question.trim()) {
@@ -291,18 +247,7 @@ console.log("Patient DOB:", preCheckData.dob);
 
       // If validation passes, reset error
       setMedicationError(false);
-
-      //setMedicationError(false);
-
-   // if (!question.trim()) newErrors.question = 'Please describe your concern';
-    /* if (!medications.trim() && !noMedications) {
-      newErrors.medications = 'Please list medications or check "no daily medications"';
-    } */
-
-    /* if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    } */
+      
     const formattedSymptoms = symptoms.map(symptom => ({
       specialtySymptomId: symptom.specialty_symptom_id,
       symptomName: symptom.symptom_name,   // 👈 add label
@@ -328,17 +273,15 @@ console.log("Patient DOB:", preCheckData.dob);
       sexatbirth
 
     };
-    console.log(draft);
+    
     if (setDraftQuestionData) setDraftQuestionData(draft);   
     setShowPreview(true);
     //onSubmit(providerId, providerSpecialtyId, preCheck, draft );
   };
-  const handleContinueFromPreview = ()=>{
-    console.log("draftquestiondata preview: ", draftQuestionData);
-    console.log("precheckdata preview: ", preCheck);
+  const handleContinueFromPreview = ()=>{    
     onSubmit(providerId, providerSpecialtyId, preCheck, draftQuestionData );
   }
-  //const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  
   const [photoPreview, setPhotoPreview] = useState<string | null>(null); 
 
   const handleSliderChange = (id: string, newValue: number) => {
@@ -376,8 +319,7 @@ console.log("Patient DOB:", preCheckData.dob);
           );
           if (!response.ok) throw new Error("Failed to fetch provider name");
 
-          const data = await response.json();
-          console.log("Provider data:", data);
+          const data = await response.json();          
 
           if (data?.display_name) {
             setTitle(`Ask ${data.display_name}`);
@@ -388,7 +330,7 @@ console.log("Patient DOB:", preCheckData.dob);
             setTitle("Ask Doctor");
           }
         } catch (error) {
-          console.error("Error fetching provider name:", error);
+          
           setTitle("Ask Doctor");
         }
       };
@@ -399,20 +341,14 @@ console.log("Patient DOB:", preCheckData.dob);
         onFail();
         return;
       }
-
-      console.log("Loaded preCheckData:", preCheck);
-      console.log("Draft questionData:", questionData);
+      
       questionData.providerSpecialtyId = providerSpecialtyId;
 
       if (draftQuestionData) {
         
 
         // Populate form fields
-        setQuestion(draftQuestionData.question);
-        //setMedicalHistory(questionData.historyFields);
-        
-        //setSelectedTopics(draftQuestionData.topic ? [draftQuestionData.topic] : []);
-        //setSymptoms(draftQuestionData.symptoms);
+        setQuestion(draftQuestionData.question);        
         
         setNoMedications(draftQuestionData.noMedications);
         
@@ -421,7 +357,7 @@ console.log("Patient DOB:", preCheckData.dob);
 
         // Keep the state in sync
         setQuestionData(draftQuestionData);
-       // localStorage.setItem("draftQuestionData", JSON.stringify(draftQuestionData));
+       
       }
     }, [location.state, preCheck, onFail]);
 
@@ -429,8 +365,7 @@ console.log("Patient DOB:", preCheckData.dob);
 
     }
     const handleSave = async () => {
-    //alert("clicked!");
-    //console.log("safsdfbjsdkfknsfnksdfnskdflmslmsdkfs");
+    
         const topicIds: string[] = selectedTopics.map(topic => topic.id);
     
         const consultInput: ConsultInput = {         
@@ -460,7 +395,7 @@ console.log("Patient DOB:", preCheckData.dob);
               status: "ISDRAFT"
             };
 
-            //console.log("consule=t input: ", consultInput);
+            
             try{
               if(questionData.consultId !== undefined){
                 const response = await fetch(`${VITE_API_BASE_URL}/api/consults/${questionData.consultId}`, {
@@ -473,7 +408,7 @@ console.log("Patient DOB:", preCheckData.dob);
                 });
                 if (!response.ok) {
                     const errorText = await response.text();
-                    console.error("Backend error response:", errorText);
+                    
                     throw new Error(`Request failed: ${response.status}`);
                   }
                       
@@ -491,7 +426,7 @@ console.log("Patient DOB:", preCheckData.dob);
               
                   if (!response.ok) {
                     const errorText = await response.text();
-                    console.error("Backend error response:", errorText);
+                    
                     throw new Error(`Request failed: ${response.status}`);
                   }
                       
@@ -502,8 +437,7 @@ console.log("Patient DOB:", preCheckData.dob);
                 
                 setModalMessage('✅ Your consult is successfuly saved as a draft.');
                 setShowModal(true);
-                //console.log("Consult created:", result);
-                //return result.id;
+                
             }catch(error){        
                 setModalMessage('❌ Failed to save your consult as a draft.');
                 setShowModal(true);

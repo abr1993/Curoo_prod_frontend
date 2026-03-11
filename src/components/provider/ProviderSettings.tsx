@@ -218,12 +218,12 @@ const removeSpecialty = (name: string) => {
 };
 
 
-// ✅ Save everything to API
+// Save everything to API
 const handleSave = async () => {
   try {
       let avatarPath = photo; // existing photo path
 
-    // ✅ Step 1: Upload photo first if it's a File
+    // Step 1: Upload photo first if it's a File
       if (photo instanceof File) {
         const formData = new FormData();
         formData.append("photo", photo);

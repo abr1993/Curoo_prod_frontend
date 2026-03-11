@@ -24,9 +24,8 @@ export const Landing: React.FC<LandingProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [expandedBio, setExpandedBio] = useState<Record<string, boolean>>({});
-
   
-  console.log(VITE_API_BASE_URL);
+ 
 const {token, userId} = useAuth();
   useEffect(() => {
     setTitle("Curoo");
@@ -67,7 +66,7 @@ const {token, userId} = useAuth();
         
         //setProviders(filteredProviders);
       } catch (err) {
-        console.error("Failed to fetch providers:", err);
+        
         setError(err);
       } finally {
         setLoading(false);
@@ -81,7 +80,7 @@ const {token, userId} = useAuth();
     };
   }, [setTitle, setDescription]);
 
-  console.log(providers);
+  
   const handleStartConsult = (providerId: string, provider_Specialty_id: String, provider: ProviderSpecialty) => {
     if(userId)localStorage.removeItem(`lastConsultId_${userId}`);
     onStartConsult(providerId, provider_Specialty_id);

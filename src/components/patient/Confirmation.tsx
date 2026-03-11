@@ -42,7 +42,8 @@ export const Confirmation: React.FC<ConfirmationProps> = ({ onViewStatus, onClos
         const data = await res.json();
         setConsultProvider(data);
       } catch (err: any) {
-        console.error("Error fetching provider for consult:", err);
+        
+        throw new Error(`Error fetching provider for consult: (${err})`);
         
       } finally {
         setLoading(false);

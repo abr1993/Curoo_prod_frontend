@@ -57,9 +57,9 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
       return updatedConsult;
       
 
-      } catch (error) {
-        console.error("Error updating consult status:", error);
-        throw error;
+      } catch (error) {        
+        throw new Error(`Error updating consult status: ${error}`);
+         
       }
     }
 
@@ -88,7 +88,7 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
           }
         }, 1500);
       } catch (error) {
-        console.error("Failed to update consult status:", error);
+        
         setError("Database Update Failed");
         setProcessing(false); // release immediately on DB failure
       }
@@ -99,7 +99,7 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
   const { providerId } = useParams<{ providerId: string }>();
   const { providerSpecialtyId } = useParams<{ providerSpecialtyId: string }>();
   const {token, userId} = useAuth();
-  //console.log("USER ID", userId);
+  
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -109,8 +109,7 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
    
   const createConsult = async (precheckData:any, questionData:QuestionDataNew, providerId:string) => {
     const topicIds: string[] = questionData.topics.map(topic => topic.id);
-
-    console.log("inside payment with existing consult id questiondata", questionData);
+    
     const consultInput: ConsultInput = {
           patientId: userId, // get from token or context
           providerId: providerId,
@@ -131,8 +130,7 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
 
         let response: Response = null;
         if(questionData.consultId !== undefined){
-          console.log("inside payment with existing consult id questiondata", questionData);
-          console.log("inside payment with existing consult id input", consultInput);
+          
            response = await fetch(`${VITE_API_BASE_URL}/api/consults/${questionData.consultId}`, {
             method: "POST",
             headers: {
@@ -155,12 +153,12 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Backend error response:", errorText);
-      throw new Error(`Request failed: ${response.status}`);
+      
+      throw new Error(`Request failed: ${errorText}`);
     }
 
     const result = await response.json();
-    console.log("Consult created:", result);
+    
     return result.id;
   }; 
 
@@ -171,18 +169,14 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
     useEffect(() => {
       // Always set page title
       setTitle("Secure payment");
-      console.log("Precheck inside payment",preCheckData);
-        console.log("Question inside paymnet",questionData);
+      
       if (!token) throw new Error("No auth token found");
       if (!preCheckData || !questionData) {
         // Missing required data → redirect behavior
         setOnBack(() => () => navigate(`/compose/${providerId}/${providerSpecialtyId}`, { replace: true }));
         navigate(`/compose/${providerId}/${providerSpecialtyId}`);
       } else {
-        // Data is valid → normal flow
-        console.log(preCheckData);
-        console.log(questionData);
-
+        // Data is valid → normal flow        
         const initConsult = async () => {
           try {
 
@@ -198,7 +192,7 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
               
               if(!providerInfo.ok) throw new Error("Failed to fetch provider");
                 const providerData = await providerInfo.json();
-                console.log("ProviderInfo", providerData);
+                
                 setProvider(providerData);
 
             const key = `lastConsultId_${userId}`;
@@ -206,8 +200,7 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
             
 
             if (savedConsultId) {
-              console.log("Using existing consult:", savedConsultId);
-              console.log("Using existing consult question data id:", questionData.consultId);
+              
               if(savedConsultId === questionData.consultId){
                   await createConsult(preCheckData, questionData, providerId);
               }              
@@ -239,7 +232,7 @@ export const Payment: React.FC<PaymentProps> = ({  onSuccess, onFailure, onCance
       return () => setOnBack(null);
     }, [preCheckData, questionData, navigate, providerId, setOnBack, setTitle, userId]);
 
-  //console.log("onBack is set to:", onBack?.toString());
+  
 
   if(loading) return <Loader />
   if(error) return <TurnBack reason={'dbupdate'} onBack={onBack} />

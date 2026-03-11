@@ -48,7 +48,7 @@ export default function MedicalHistorySection({ providerSpecialtyId, onChange, o
       try {
         const res = await fetch(`${VITE_API_BASE_URL}/api/specialty/${providerSpecialtyId}/conditions`);
         const data: Topic[] = await res.json();
-        //console.log(providers)
+        
         const sortedTopics = [...data].sort((a, b) => {
           const aWords = a.name.trim().length;
           const bWords = b.name.trim().length;
@@ -69,9 +69,7 @@ export default function MedicalHistorySection({ providerSpecialtyId, onChange, o
     };
     fetchHistoryTemplate();
     fetchTopics();
-  }, [providerSpecialtyId]);
-
-  console.log("fetched topics", topics);
+  }, [providerSpecialtyId]);  
   
   useEffect(() => {
   const formatted = fields.map((field) => ({

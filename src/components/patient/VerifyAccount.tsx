@@ -127,76 +127,24 @@ const [modalMessage, setModalMessage] = useState('');
         } else if (res.ok) {
           resetOtp();
           setStep('otp');
-          console.log(`✅ OTP sent to ${normalizedContact}`);
+          
         } else {
-          console.log('⚠️', data?.message || 'Something went wrong.');
+          setShowErrorModal(true);
+          setModalMessage('⚠️', data?.message || 'Something went wrong.');
+          
         }
 
         if (!res.ok) throw new Error('Failed to send OTP');
       } catch (err) {
-        console.error('❌ Error sending OTP:', err);
+          setShowErrorModal(true);
+          setModalMessage('❌ Error sending OTP:', err);
+        
       } finally {
         setLoading(false);
       }
     };
 
-
-  /* const handleSendOtp = async () => {
-    if (!contact.trim()) return alert('Please enter your email');
-
-    setLoading(true);
-    
-    const savedToken = localStorage.getItem('token');
-
-    if (savedToken && isTokenValid(savedToken)) {
-      const decoded = JSON.parse(atob(savedToken.split('.')[1]));
-      if (decoded.email === contact) {
-        console.log('✅ Valid token found, skipping OTP step');
-        if (providerId) {
-          onSuccess({ providerId, providerSpecialtyId });
-        } else {
-          onSuccess({ role });
-        }   
-        return;
-      }
-}
-
-    try {
-      const res = await fetch(`${VITE_API_BASE_URL}/api/auth/otp`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: contact }),
-      });
-      const data = await res.json();
-      console.log(data.message);
-      console.log('Response:', res.status, data);
-
-      if (
-      typeof data?.message === 'string' &&
-      data.message.toLowerCase().includes('not registered')
-    ) {
-      setModalMessage('This email is not registered. Register now?');
-      setShowModal(true);
-    } 
-    // ✅ Otherwise, assume success
-    else if (res.ok) {
-      setStep('otp');
-    } 
-    // ✅ Fallback for unexpected responses
-    else {
-      alert(data?.message || 'Something went wrong.');
-    }
-      if (!res.ok) throw new Error('Failed to send OTP');
-      console.log(`OTP sent to ${contact}`);
-      //setStep('otp');
-    } catch (err) {
-      console.error(err);
-      alert('Error sending OTP');
-    } finally {
-      setLoading(false);
-    }
-   
-  }; */
+  
 
   const resetOtp = () => {
     setOtp(Array(6).fill(""));
@@ -288,10 +236,10 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) 
       return;
     }
 
-    console.log("🔹 Parsed response data:", data);
+    
       
       if (res.ok && data.token) {
-        console.log('✅ Token received:', data.token);
+        
         // Save JWT token locally
         //localStorage.setItem('authData', JSON.stringify({ email: contact, token: data.token }));
         

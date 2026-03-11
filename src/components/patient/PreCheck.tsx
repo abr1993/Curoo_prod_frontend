@@ -112,6 +112,7 @@ export const PreCheck: React.FC<PreCheckProps> = ({ onPass, onFail, onCancel }) 
       if (parsed.state) setState(parsed.state);
       if (parsed.dob) setDob(parsed.dob);
       if (parsed.coverageAttested) setCoverageAttested(parsed.coverageAttested);
+      if (parsed.selfPay) setSelfPay(parsed.selfPay); 
       if (parsed.selectedRedFlags) setSelectedRedFlags(parsed.selectedRedFlags);
     }
   }, []);
@@ -120,7 +121,7 @@ export const PreCheck: React.FC<PreCheckProps> = ({ onPass, onFail, onCancel }) 
   useEffect(() => {
     const formData = { state, dob, coverageAttested, selectedRedFlags };
     localStorage.setItem("precheckData", JSON.stringify(formData));
-  }, [state, dob, coverageAttested, selectedRedFlags]);
+  }, [state, dob, coverageAttested, selfPay, selectedRedFlags]);
 
   if (loading) return <Loader />;
 

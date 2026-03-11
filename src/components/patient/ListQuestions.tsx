@@ -30,8 +30,7 @@ export const MyQuestions: React.FC<MyQuestionsProps> = ({
   const setTab = (tab: typeof tabs[number]) => {
     setSearchParams({ tab }); // updates URL ?tab=pending
   };
-
-  console.log(currentTab);
+  
 
   const [consultdetails, setConsultDetailss] = useState<ConsultDetail[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -39,10 +38,9 @@ export const MyQuestions: React.FC<MyQuestionsProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const {token, userId} = useAuth();
-    console.log("USER ID", userId);
-  //console.log("filtered consults", filteredConsults);
+    
 
-   // ✅ Fetch consults from your API
+   // Fetch consults from your API
   useEffect(() => {
     const fetchConsults = async () => {
       try {
@@ -63,7 +61,7 @@ export const MyQuestions: React.FC<MyQuestionsProps> = ({
         const data = await res.json();
         setConsultDetailss(data);
       } catch (err: any) {
-        console.error("Error fetching consults:", err);
+        
         setError("Unable to load consults. Please try again later.");
       } finally {
         setLoading(false);
@@ -72,7 +70,7 @@ export const MyQuestions: React.FC<MyQuestionsProps> = ({
 
     fetchConsults();
   }, []);
-console.log("fetched consults", consultdetails);
+
 
 const filteredConsultDetails = (consultdetails || []).filter((c) => {
     if (currentTab === "all") return true;
@@ -194,7 +192,7 @@ const filteredConsultDetails = (consultdetails || []).filter((c) => {
 
   const handleContinue = async(consult: ConsultDetail) => {
     const draft = await getConsultDraft(consult.id);
-    console.log("Draft consult id inside handlecontinue: ", draft.id);
+    
     if (!draft) return;
     const preCheckData: PreCheckData = {
       state: consult.state_at_service,
@@ -202,10 +200,9 @@ const filteredConsultDetails = (consultdetails || []).filter((c) => {
       coverageAttested: true, // or pull from consult if available
       redFlags: [], // or populate based on consult data
     };
-    console.log("draft when continue", draft);
-    const questionData = mapConsultToQuestionData(draft);
     
-    console.log("questionData when continue", questionData);
+    const questionData = mapConsultToQuestionData(draft);   
+    
 
     onSelectConsult(consult, `/compose/${consult.provider_id}/${consult.provider_specialty_id}`, preCheckData, questionData);
   };
@@ -231,10 +228,10 @@ const filteredConsultDetails = (consultdetails || []).filter((c) => {
         setConsultDetailss((prev) =>
           prev.filter((c) => c.id !== consultToDelete.id)
         );
-        //alert("Consult soft deleted successfully");
+        
       } catch (err) {
         console.error(err);
-        alert("Failed to delete consult");
+        
       } finally {
         setShowDeleteModal(false);
         setConsultToDelete(null);

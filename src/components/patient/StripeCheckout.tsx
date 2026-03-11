@@ -3,7 +3,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-// ✅ Initialize Stripe (replace with your publishable key)
+// Initialize Stripe (replace with your publishable key)
 const VITE_STRIPE_PUBLISHABLE_KEY = "";
 const stripePromise = loadStripe(VITE_STRIPE_PUBLISHABLE_KEY!);
 

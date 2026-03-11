@@ -52,7 +52,7 @@ function AppRoutes() {
   const [turnbackReason, setTurnbackReason] = useState<'coverage' | 'redFlag' | 'state' | 'stripe'>('coverage');
    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
-// console.log("Draft in applayout",draftQuestionData)
+
   useEffect(() => {
     setIsLoggedIn(isTokenValid());
   }, []);
@@ -64,7 +64,7 @@ function AppRoutes() {
     setIsLoggedIn(false);
     navigate("/");
   };
-console.log("JWT in localStorage on startup:", localStorage.getItem("token"));
+
   const headerRight = isLoggedIn ? (
     <Button
       onClick={handleSignOut}
@@ -100,7 +100,7 @@ console.log("JWT in localStorage on startup:", localStorage.getItem("token"));
       role?: string;
       redirect?: string;
     }) => {
-      console.log("redirect page: ", redirect);
+      
       if (providerId) {
         navigate(`/payment/${providerId}/${providerSpecialtyId}`, {
           state: { preCheckData, questionData: draftQuestionData },
@@ -141,7 +141,7 @@ console.log("JWT in localStorage on startup:", localStorage.getItem("token"));
   };
 
   const handlePaymentFailure = (errmessage: string) => {
-    //console.log("ERRORMESSAGE INSIDE APPLAYOUT: ", errmessage);
+    
     setTurnbackReason("stripe");
     navigate("/turnback", {state: { stripeErrorData: errmessage}});
   };
@@ -150,10 +150,8 @@ console.log("JWT in localStorage on startup:", localStorage.getItem("token"));
     navigate("/myconsults")
   }
   const handleSelectConsult = (consult: ConsultDetail, destination: string, preCheckData?: any, questionData?:any) => {
-      console.log("selected consult", consult);
-    handleSetSelectedConsult(consult);
-    console.log("Navigating to", destination);
-    console.log("Navigating questiondata", questionData);
+      
+    handleSetSelectedConsult(consult);    
     navigate(destination, { state: { preCheckData, questionData } });
   };
 
