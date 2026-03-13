@@ -119,7 +119,7 @@ export const PreCheck: React.FC<PreCheckProps> = ({ onPass, onFail, onCancel }) 
 
   // 🟩 Save changes automatically
   useEffect(() => {
-    const formData = { state, dob, coverageAttested, selectedRedFlags };
+    const formData = { state, dob, coverageAttested, selfPay, selectedRedFlags };
     localStorage.setItem("precheckData", JSON.stringify(formData));
   }, [state, dob, coverageAttested, selfPay, selectedRedFlags]);
 
