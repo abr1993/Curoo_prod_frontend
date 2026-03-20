@@ -345,8 +345,8 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) 
           ) : step === "input" ? (
             <>
               <Input
-                label="Email or Mobile Number"
-                placeholder="example@email.com or +15551234567"
+                label="Email"
+                placeholder="example@email.com"
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
               />
