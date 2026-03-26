@@ -104,37 +104,30 @@ const [modalMessage, setModalMessage] = useState('');
             return;
           }
         } catch (err) {
-          console.error(' Error decoding token:', err);
+          setShowErrorModal(true);
+          setModalMessage("❌ Error decoding token: " + err);
         }
       }
 
       try {
-        const res = await fetch(`${VITE_API_BASE_URL}/api/auth/otp`, {
+        const res = await fetch(`${VITE_API_BASE_URL}/api/auth/user`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: normalizedContact }),
         });
 
         const data = await res.json();
-        console.log(' OTP API response:', res.status, data);
+        
 
-        if (
-          typeof data?.message === 'string' &&
-          data.message.toLowerCase().includes('not registered')
-        ) {
-          setModalMessage('This email is not registered. Register now?');
-          setShowModal(true);
-        } else if (res.ok) {
-          resetOtp();
-          setStep('otp');
+        if (data.exists) {
+          // Existing user → send OTP immediately
+          await sendOTP(normalizedContact);
           
         } else {
-          setShowErrorModal(true);
-          setModalMessage('⚠️', data?.message || 'Something went wrong.');
-          
-        }
-
-        if (!res.ok) throw new Error('Failed to send OTP');
+          setModalMessage('This email is not registered. Register now?');
+          setShowModal(true);
+        } 
+        
       } catch (err) {
           setShowErrorModal(true);
           setModalMessage('❌ Error sending OTP:', err);
@@ -144,6 +137,46 @@ const [modalMessage, setModalMessage] = useState('');
       }
     };
 
+     const sendOTP = async(email:string)=>{
+      
+        const res = await fetch(`${VITE_API_BASE_URL}/api/auth/otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email }),
+        });
+
+        const data = await res.json();
+        console.log(' OTP API response:', res.status, data);
+
+         if (res.ok) {
+          resetOtp();
+          setStep('otp');
+          //console.log(`✅ OTP sent to ${email}`);
+        } else {
+          setShowErrorModal(true);
+          setModalMessage("⚠️" + (data?.message || "Something went wrong when generating OTP!"));
+          
+        }
+
+        if (!res.ok) throw new Error('Failed to send OTP');
+      
+    }
+
+    const handleConfirmRegister = async () => {
+        setLoading(true);
+        const normalizedContact = contact.trim().toLowerCase();
+        try{
+          await sendOTP(normalizedContact);
+        }catch(err){
+            setShowErrorModal(true);
+            setModalMessage("❌ Error sending OTP: " + err);
+        }finally{
+            setLoading(false);
+        }
+        
+        setShowModal(false);    
+        setStep("otp"); // go to otp page
+      };
   
 
   const resetOtp = () => {
@@ -402,13 +435,11 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) 
               </h2>
               <div className="flex justify-center gap-4 mt-4">
                 <button
-                  onClick={() => {
-                    setShowModal(false);
-                    setStep("otp"); // go to otp page
-                  }}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg w-24"
+                  onClick={handleConfirmRegister}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg w-24 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={loading}
                 >
-                  OK
+                  {loading ? "Sending OTP" : "OK"}
                 </button>
                 <button
                   onClick={() => setShowModal(false)}
